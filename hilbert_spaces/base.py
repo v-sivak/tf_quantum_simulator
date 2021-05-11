@@ -26,17 +26,18 @@ class HilbertSpace(ABC):
         """
         # Tensor ops acting on oscillator Hilbert space
         self._define_fixed_operators()
-        
+
         # Initialize quantum trajectories simulator
         self.mcsim = QuantumTrajectorySim(self._kraus_ops(discrete_step_duration))
+
         def simulate(psi, time):
             # TODO: fix the rounding issue
             steps = tf.cast(time / discrete_step_duration, dtype=tf.int32)
             return self.mcsim.run(psi, steps)
+
         self.simulate = tf.function(simulate)
 
-        super().__init__(*args, **kwargs)
-    
+        super().__init__()
 
     @abstractmethod
     def _define_fixed_operators(self):
