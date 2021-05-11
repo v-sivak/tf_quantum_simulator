@@ -22,7 +22,7 @@ class QuantumTrajectorySim:
         """
         self.Kraus_operators = Kraus_operators
 
-    def _step(self, j, psi, steps, return_all_steps):
+    def _step(self, j, psi, steps, save_frequency):
         """
         One step in the Markov chain.
         """
@@ -40,14 +40,14 @@ class QuantumTrajectorySim:
             state = tf.where(mask, traj[i], state)
             # Update cumulant
             cumulant += p[i]
-        if return_all_steps:
+        if save_frequency > 0 and j % save_frequency == 0:
             self.psi_history.append(state)
-        return [j + 1, state, steps, return_all_steps]
+        return [j + 1, state, steps, save_frequency]
 
-    def _cond(self, j, psi, steps, return_all_steps):
+    def _cond(self, j, psi, steps, save_frequency):
         return tf.less(j, steps)
 
-    def run(self, psi, steps, return_all_steps=False):
+    def run(self, psi, steps, save_frequency=0):
         """
         Simulate a batch of trajectories for a number of steps.
         
@@ -55,15 +55,16 @@ class QuantumTrajectorySim:
             psi (Tensor([B1,...Bb,N], c64)): batch of quantum states.
             steps (int): number of steps to run the trajectory
         """
-        if return_all_steps:
+        print(save_frequency)
+        if save_frequency > 0:
             self.psi_history = []
         psi, _ = normalize(psi)
         j = tf.constant(0)
         _, psi_new, _, _ = tf.while_loop(
-            self._cond, self._step, loop_vars=[j, psi, steps, return_all_steps]
+            self._cond, self._step, loop_vars=[j, psi, steps, save_frequency]
         )
 
-        if return_all_steps:
+        if save_frequency > 0:
             return tf.stack(self.psi_history)
         # Check for NaN
         mask = tf.math.is_nan(tf.math.real(psi_new))

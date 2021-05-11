@@ -189,10 +189,14 @@ def batch_psi_expect(psi_batch, O):
 
 
 # batch of operators and batch of states --> average expectation value for each operator
+# Can support state with two batch dimensions [b1, b2, N]
+# will average over b2.
 @tf.function
 def batch_expect(psi_batch, O_batch):
-    norm = tf.constant((1 / psi_batch.shape[0]), dtype=tf.complex64)
-    return norm * tf.einsum("ki,bij,kj->b", tf.math.conj(psi_batch), O_batch, psi_batch)
+    norm = tf.constant((1 / psi_batch.shape[-2]), dtype=tf.complex64)
+    return norm * tf.einsum(
+        "...ki,bij,...kj->...b", tf.math.conj(psi_batch), O_batch, psi_batch
+    )
 
 
 # Take single state and create batch of states for use in MC simulation.

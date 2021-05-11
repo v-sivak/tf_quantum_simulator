@@ -1,9 +1,9 @@
 import tensorflow as tf
 from numpy import pi, sqrt
 from tensorflow import complex64 as c64
-from simulator.utils import measurement, tensor, expectation, batch_expect
+from tf_quantum_simulator.utils import measurement, tensor, expectation, batch_expect
 from .base import HilbertSpace
-from simulator import operators as ops
+from tf_quantum_simulator import operators as ops
 
 # simulator class for oscillator with dispersive coupling to a qubit
 # simulated in the displaced frame of the oscillator
@@ -17,7 +17,16 @@ class DisplacedOscillatorQubit(HilbertSpace):
     """
 
     def __init__(
-        self, *args, chi, kappa=0, gamma_1=0, gamma_phi=0, N=20, N_large=100, **kwargs
+        self,
+        *args,
+        chi,
+        kappa=0,
+        kerr=0,
+        gamma_1=0,
+        gamma_phi=0,
+        N=20,
+        N_large=100,
+        **kwargs
     ):
         """
         Args:
@@ -31,6 +40,7 @@ class DisplacedOscillatorQubit(HilbertSpace):
         self._N_large = N_large
         self._chi = chi
         self._kappa = kappa
+        self._kerr = kerr
         self._gamma_1 = gamma_1
         self._gamma_phi = gamma_phi
 
@@ -85,7 +95,10 @@ class DisplacedOscillatorQubit(HilbertSpace):
         alpha = H_args[0]
         # for now, we will assume a static alpha cd hamiltonian, ignoring all other terms
         # later, will include time-dependence in alpha.
-        cd = self._chi * alpha * (self.a + self.a_dag) @ (self.sz / 2.0)
+        cd = (
+            self._chi * alpha * (self.a + self.a_dag) @ (self.sz / 2.0)
+            - self._kerr * self.a_dag @ self.a_dag @ self.a @ self.a
+        )
         return cd
 
     @property
@@ -160,7 +173,12 @@ class DisplacedOscillatorQubit(HilbertSpace):
         # create parity ops with N large, then truncate to N.
         parity_ops = self.displaced_parity_large(alphas_flat)
         W = batch_expect(psi_batch, parity_ops)
-        return tf.reshape(W, alphas.shape)
+        W_shape = (
+            [W.shape[0], alphas.shape[0], alphas.shape[1]]
+            if len(W.shape) == 2
+            else alphas.shape
+        )
+        return tf.reshape(W, W_shape)
 
     @property
     def N(self):

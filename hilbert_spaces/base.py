@@ -32,13 +32,10 @@ class HilbertSpace(ABC):
             self._kraus_ops(discrete_step_duration, *H_args)
         )
 
-        def simulate(psi, time, *H_args, return_all_steps=False):
+        def simulate(psi, time, *H_args, save_frequency=0):
             # TODO: fix the rounding issue
             steps = tf.cast(time / discrete_step_duration, dtype=tf.int32)
-            print(H_args)
-            print(steps)
-            print(return_all_steps)
-            return self.mcsim(*H_args).run(psi, steps, return_all_steps)
+            return self.mcsim(*H_args).run(psi, steps, save_frequency)
 
         # self.simulate = tf.function(simulate)
         self.simulate = simulate
