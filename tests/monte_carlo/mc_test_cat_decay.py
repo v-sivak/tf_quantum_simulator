@@ -29,7 +29,7 @@ t_max = 5000
 n_traj = 2000
 save_frequency = 150
 psi0_batch = copy_state_to_batch(psi0,n_traj)
-result = system.simulate(psi0_batch, t_max, alpha, save_frequency=save_frequency)
+ts, result = system.simulate(psi0_batch, t_max, alpha, save_frequency=save_frequency)
 #%%
 n = system.n
 n_exp = batch_psi_expect(result, n)
@@ -38,7 +38,7 @@ def n_decay(t, tau, n0 = 1):
     n = n0*np.exp(-t/tau)
     return n
 steps = n_exp.shape[0]
-ts = np.arange(steps)*params['discrete_step_duration']*save_frequency
+#ts = np.arange(steps)*params['discrete_step_duration']*save_frequency
 ts_interpolate = np.linspace(ts[0], ts[-1], 101)
 plt.plot(ts_interpolate, n_decay(ts_interpolate, 1/params['kappa'], n0=np.abs(cat_alpha)**2),'--',color='black')
 plt.plot(ts, n_exp,'o', label='<n>')
@@ -60,5 +60,5 @@ for i, w, t in zip(np.arange(len(W)),W,ts):
     axs[i].set_yticks([])
     axs[i].set_title('t = %.2f us' % (t/1e3))
     axs[i].set_aspect('equal')
-plt.show()
+fig.savefig('cat_decay_example.png', dpi=300)
 # %%

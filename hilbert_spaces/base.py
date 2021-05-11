@@ -10,6 +10,7 @@ from abc import ABC, abstractmethod
 import tensorflow as tf
 import tensorflow_probability as tfp
 from tf_quantum_simulator.quantum_trajectory_sim import QuantumTrajectorySim
+import numpy as np
 
 
 class HilbertSpace(ABC):
@@ -32,10 +33,21 @@ class HilbertSpace(ABC):
             self._kraus_ops(discrete_step_duration, *H_args)
         )
 
-        def simulate(psi, time, *H_args, save_frequency=0):
+        # returns time setps, and batch result
+        # todo: could "append" to times, or have a tf variable be a running clock
+        # todo: get rid of all numpy...
+        def simulate(psi, time, *H_args, save_frequency=0, t_init=0):
             # TODO: fix the rounding issue
             steps = tf.cast(time / discrete_step_duration, dtype=tf.int32)
-            return self.mcsim(*H_args).run(psi, steps, save_frequency)
+            result = self.mcsim(*H_args).run(psi, steps, save_frequency)
+            if save_frequency == 0:
+                t = steps.numpy() * discrete_step_duration
+                return np.array([t_init + t]), result
+            else:
+                times = (
+                    np.arange(result.shape[0]) * save_frequency * discrete_step_duration
+                )
+                return times, result
 
         # self.simulate = tf.function(simulate)
         self.simulate = simulate

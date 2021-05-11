@@ -23,9 +23,9 @@ psi0 = Kronecker_product([basis(1,2), basis(0,N)])[0]
 alpha = 0.0
 t_max = 10000
 n_traj = 2000
-save_frequency = 10
+save_frequency = 100
 psi0_batch = copy_state_to_batch(psi0,n_traj)
-result = system.simulate(psi0_batch, t_max, alpha, save_frequency=save_frequency)
+ts, result = system.simulate(psi0_batch, t_max, alpha, save_frequency=save_frequency)
 sz = system.sz
 z = batch_psi_expect(result, sz)
 print(result.shape)
@@ -34,12 +34,13 @@ def sz_decay(t, tau):
     pe = np.exp(-t/tau)
     return 1-2*pe
 steps = z.shape[0]
-ts = np.arange(steps)*params['discrete_step_duration']*save_frequency
+#ts = np.arange(steps)*params['discrete_step_duration']*save_frequency
 ts_interpolate = np.linspace(ts[0], ts[-1], 101)
 plt.plot(ts_interpolate, sz_decay(ts_interpolate, 1/params['gamma_1']),'--',color='black')
 plt.plot(ts, z,'o', label='<sz>')
 plt.ylabel('<sz>')
 plt.xlabel('t ns')
 plt.title('MC T1 experiment')
+plt.savefig('t1_example.png', dpi=300)
 
 # %%

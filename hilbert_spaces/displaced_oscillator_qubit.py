@@ -1,4 +1,5 @@
 import tensorflow as tf
+import numpy as np
 from numpy import pi, sqrt
 from tensorflow import complex64 as c64
 from tf_quantum_simulator.utils import measurement, tensor, expectation, batch_expect
@@ -117,6 +118,14 @@ class DisplacedOscillatorQubit(HilbertSpace):
             ops.append(qubit_dephasing)
 
         return ops
+
+    def conditional_displacement(self, psi_batch, beta, alpha):
+        # note: if the discrete_step_size is too large, t will be rounded
+        # and the beta will be off.
+        t = np.abs(beta) / np.abs(alpha) / self._chi
+        alpha_phase = np.angle(beta) + np.pi / 2.0
+        alpha = np.abs(alpha) * np.exp(1j * alpha_phase)
+        return self.simulate(psi_batch, t, alpha)
 
     @tf.function
     def ctrl(self, U0, U1):
