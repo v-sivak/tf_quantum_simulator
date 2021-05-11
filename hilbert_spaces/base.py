@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 
 import tensorflow as tf
 import tensorflow_probability as tfp
-from simulator.quantum_trajectory_sim import QuantumTrajectorySim
+from tf_quantum_simulator.quantum_trajectory_sim import QuantumTrajectorySim
 
 
 class HilbertSpace(ABC):
@@ -28,14 +28,20 @@ class HilbertSpace(ABC):
         self._define_fixed_operators()
 
         # Initialize quantum trajectories simulator
-        self.mcsim = QuantumTrajectorySim(self._kraus_ops(discrete_step_duration))
+        self.mcsim = lambda *H_args: QuantumTrajectorySim(
+            self._kraus_ops(discrete_step_duration, *H_args)
+        )
 
-        def simulate(psi, time):
+        def simulate(psi, time, *H_args, return_all_steps=False):
             # TODO: fix the rounding issue
             steps = tf.cast(time / discrete_step_duration, dtype=tf.int32)
-            return self.mcsim.run(psi, steps)
+            print(H_args)
+            print(steps)
+            print(return_all_steps)
+            return self.mcsim(*H_args).run(psi, steps, return_all_steps)
 
-        self.simulate = tf.function(simulate)
+        # self.simulate = tf.function(simulate)
+        self.simulate = simulate
 
         super().__init__()
 
@@ -50,9 +56,8 @@ class HilbertSpace(ABC):
         """
         pass
 
-    @property
     @abstractmethod
-    def _hamiltonian(self):
+    def _hamiltonian(self, *H_args):
         """
         System Hamiltonian (Tensor(c64)). To be defined by the subclass.
         """
@@ -66,15 +71,16 @@ class HilbertSpace(ABC):
         """
         pass
 
-    def _kraus_ops(self, dt):
+    def _kraus_ops(self, dt, *H_args):
         """
         Create kraus ops for free evolution simulator
 
         Args:
             dt (float): Discretized time step of simulator
+            H_args: arguments passed to Hamiltonian function
         """
         Kraus = {}
-        Kraus[0] = self.I - 1j * self._hamiltonian * dt
+        Kraus[0] = self.I - 1j * self._hamiltonian(*H_args) * dt
         for i, c in enumerate(self._collapse_operators):
             Kraus[i + 1] = tf.cast(tf.sqrt(dt), dtype=tf.complex64) * c
             Kraus[0] -= 1 / 2 * tf.linalg.matmul(c, c, adjoint_a=True) * dt

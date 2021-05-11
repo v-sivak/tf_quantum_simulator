@@ -22,7 +22,7 @@ class QuantumTrajectorySim:
         """
         self.Kraus_operators = Kraus_operators
 
-    def _step(self, j, psi, steps):
+    def _step(self, j, psi, steps, return_all_steps):
         """
         One step in the Markov chain.
         """
@@ -32,7 +32,7 @@ class QuantumTrajectorySim:
         state = psi
         for i, Kraus in self.Kraus_operators.items():
             # Compute a trajectory for this Kraus operator
-            traj[i] = tf.linalg.matvec(Kraus, psi) # shape = [b,N]
+            traj[i] = tf.linalg.matvec(Kraus, psi)  # shape = [b,N]
             traj[i], norm[i] = normalize(traj[i])
             p[i] = tf.math.real(norm[i]) ** 2
             # Select this trajectory depending on sampled 'prob'
@@ -40,12 +40,14 @@ class QuantumTrajectorySim:
             state = tf.where(mask, traj[i], state)
             # Update cumulant
             cumulant += p[i]
-        return [j + 1, state, steps]
+        if return_all_steps:
+            self.psi_history.append(state)
+        return [j + 1, state, steps, return_all_steps]
 
-    def _cond(self, j, psi, steps):
+    def _cond(self, j, psi, steps, return_all_steps):
         return tf.less(j, steps)
 
-    def run(self, psi, steps):
+    def run(self, psi, steps, return_all_steps=False):
         """
         Simulate a batch of trajectories for a number of steps.
         
@@ -53,12 +55,16 @@ class QuantumTrajectorySim:
             psi (Tensor([B1,...Bb,N], c64)): batch of quantum states.
             steps (int): number of steps to run the trajectory
         """
+        if return_all_steps:
+            self.psi_history = []
         psi, _ = normalize(psi)
         j = tf.constant(0)
-        _, psi_new, steps = tf.while_loop(
-            self._cond, self._step, loop_vars=[j, psi, steps]
+        _, psi_new, _, _ = tf.while_loop(
+            self._cond, self._step, loop_vars=[j, psi, steps, return_all_steps]
         )
 
+        if return_all_steps:
+            return tf.stack(self.psi_history)
         # Check for NaN
         mask = tf.math.is_nan(tf.math.real(psi_new))
         psi_new = tf.where(mask, psi, psi_new)

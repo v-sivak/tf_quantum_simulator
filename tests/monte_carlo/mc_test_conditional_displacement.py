@@ -16,8 +16,7 @@ N = params['N']
 psi0 = Kronecker_product([(basis(0,2) + basis(1,2))/np.sqrt(2.0), basis(0,N)])[0]
 psi0_batch = copy_state_to_batch(psi0,100)
 #%%
-result = system.simulate(psi0_batch, 200.0)
-print(result)
+result = system.simulate(psi0_batch, 200.0, 30.0)
 # %%
 xvec = np.linspace(-4,4,61)
 x,y = np.meshgrid(xvec,xvec)

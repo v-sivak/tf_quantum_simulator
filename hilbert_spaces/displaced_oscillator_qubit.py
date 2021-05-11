@@ -17,16 +17,7 @@ class DisplacedOscillatorQubit(HilbertSpace):
     """
 
     def __init__(
-        self,
-        *args,
-        chi,
-        alpha=1.0,
-        kappa=0,
-        gamma_1=0,
-        gamma_phi=0,
-        N=20,
-        N_large=100,
-        **kwargs
+        self, *args, chi, kappa=0, gamma_1=0, gamma_phi=0, N=20, N_large=100, **kwargs
     ):
         """
         Args:
@@ -42,7 +33,6 @@ class DisplacedOscillatorQubit(HilbertSpace):
         self._kappa = kappa
         self._gamma_1 = gamma_1
         self._gamma_phi = gamma_phi
-        self._alpha = alpha
 
         super().__init__(self, *args, **kwargs)
 
@@ -91,11 +81,11 @@ class DisplacedOscillatorQubit(HilbertSpace):
             [ops.identity(2), ops.identity(N) - ops.projector(0, N)]
         )
 
-    @property
-    def _hamiltonian(self):
+    def _hamiltonian(self, *H_args):
+        alpha = H_args[0]
         # for now, we will assume a static alpha cd hamiltonian, ignoring all other terms
         # later, will include time-dependence in alpha.
-        cd = self._chi * self._alpha * (self.a + self.a_dag) @ (self.sz / 2.0)
+        cd = self._chi * alpha * (self.a + self.a_dag) @ (self.sz / 2.0)
         return cd
 
     @property
