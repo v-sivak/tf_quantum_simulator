@@ -18,7 +18,12 @@ def normalize(state):
         state_normalized (Tensor([B1,...Bb,N], c64)): normalized quantum state
         norm (Tensor([B1,...Bb,1], c64)): norm of the batch of states
     """
+    # state = tf.cast(state, dtype=tf.complex128)
     normalized, norm = tf.linalg.normalize(state, axis=-1)
+    # normalized = tf.cast(state, dtype=tf.complex64)
+    # norm = tf.einsum("...ij->...i", tf.math.abs(state) ** 2)
+    # norm = tf.cast(norm, dtype=c64)
+    # normalized = tf.einsum("i,ij->ij", 1 / norm, state)
     mask = tf.math.is_nan(tf.math.real(normalized))
     state_normalized = tf.where(mask, tf.zeros_like(normalized), normalized)
     return state_normalized, norm
@@ -161,11 +166,17 @@ def tensor(operators):
 
 # basic utility functions added by Alec. Will add documentation soon.
 
+# can work with batched ket and bras
+@tf.function
+def outer_product(psi1, psi2):
+    return tf.einsum("...i,...j->...ij", psi1, tf.math.conj(psi2))
+
+
 # takes a batch of states and returns a density matrix
 @tf.function
 def density_matrix(psi_batch):
     norm = tf.constant((1 / psi_batch.shape[0]), dtype=tf.complex64)
-    return norm * tf.einsum("ki,kj->ij", psi_batch, tf.math.conj(psi_batch))
+    return norm * tf.reduce_sum(outer_product(psi_batch, psi_batch), axis=0)
 
 
 # basic expectation value
@@ -204,3 +215,4 @@ def batch_expect(psi_batch, O_batch):
 def copy_state_to_batch(state, batch_size):
     s = tf.tile(state, [batch_size])
     return tf.reshape(s, [batch_size, state.shape[0]])
+

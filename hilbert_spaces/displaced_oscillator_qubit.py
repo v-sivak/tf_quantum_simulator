@@ -2,10 +2,19 @@ import tensorflow as tf
 import numpy as np
 from numpy import pi, sqrt
 from tensorflow import complex64 as c64
-from tf_quantum_simulator.utils import measurement, tensor, expectation, batch_expect
+from tf_quantum_simulator.utils import (
+    measurement,
+    tensor,
+    expectation,
+    batch_expect,
+    outer_product,
+    basis,
+    normalize,
+)
 from .base import HilbertSpace
 from tf_quantum_simulator import operators as ops
 
+mult = tf.linalg.matvec
 # simulator class for oscillator with dispersive coupling to a qubit
 # simulated in the displaced frame of the oscillator
 class DisplacedOscillatorQubit(HilbertSpace):
@@ -45,6 +54,9 @@ class DisplacedOscillatorQubit(HilbertSpace):
         self._gamma_1 = gamma_1
         self._gamma_phi = gamma_phi
 
+        self.alphas_flat = None
+        self.tomo_ops = None
+
         super().__init__(self, *args, **kwargs)
 
     def _define_fixed_operators(self):
@@ -80,17 +92,17 @@ class DisplacedOscillatorQubit(HilbertSpace):
         )
 
         tensor_with = [None, ops.identity(N)]
-        self.rotate_qb_xy = ops.QubitRotationXY(tensor_with=tensor_with)
-        self.rotate_qb_z = ops.QubitRotationZ(tensor_with=tensor_with)
-        self.rxp = self.rotate_qb_xy(tf.constant(pi / 2), tf.constant(0))
-        self.rxm = self.rotate_qb_xy(tf.constant(-pi / 2), tf.constant(0))
+        self.Rxy = ops.QubitRotationXY(tensor_with=tensor_with)
+        self.Rz = ops.QubitRotationZ(tensor_with=tensor_with)
 
         # qubit sigma_z measurement projector
         self.P = {i: tensor([ops.projector(i, 2), ops.identity(N)]) for i in [0, 1]}
 
-        self.sx_selective = tensor([ops.sigma_x(), ops.projector(0, N)]) + tensor(
-            [ops.identity(2), ops.identity(N) - ops.projector(0, N)]
+        # qubit reset
+        qb_reset = outer_product(basis(0, 2), basis(1, 2)) + outer_product(
+            basis(0, 2), basis(0, 2)
         )
+        self.qb_reset = tensor([qb_reset, ops.identity(N)])
 
     def _hamiltonian(self, *H_args):
         alpha = H_args[0]
@@ -119,6 +131,7 @@ class DisplacedOscillatorQubit(HilbertSpace):
 
         return ops
 
+    # @tf.function
     def conditional_displacement(self, psi_batch, beta, alpha):
         # note: if the discrete_step_size is too large, t will be rounded
         # and the beta will be off.
@@ -127,60 +140,38 @@ class DisplacedOscillatorQubit(HilbertSpace):
         alpha = np.abs(alpha) * np.exp(1j * alpha_phase)
         return self.simulate(psi_batch, t, alpha)
 
-    @tf.function
-    def ctrl(self, U0, U1):
-        """
-        Batch controlled-U gate. Apply 'U0' if qubit is '0', and 'U1' if
-        qubit is '1'.
+    def measure_and_reset(self, psi_batch):
+        psi_batch, measurement_results = measurement(psi_batch, self.P, sample=True)
+        psi_batch, norm = normalize(mult(self.qb_reset, psi_batch))
+        return psi_batch, measurement_results
 
-        Input:
-            U0 -- unitary on the oscillator subspace written in the combined
-                  qubit-oscillator Hilbert space; shape=[batch_size,2N,2N]
-            U1 -- same as above
-
-        """
-        return self.P[0] @ U0 + self.P[1] @ U1
-
-    @tf.function  # TODO: add losses in phase estimation?
-    def phase_estimation(self, psi, U, angle, sample=False):
-        """
-        One round of phase estimation.
-
-        Input:
-            psi -- batch of state vectors; shape=[batch_size,2N]
-            U -- unitary on which to do phase estimation. shape=(batch_size,N,N)
-            angle -- angle along which to measure qubit. shape=(batch_size,)
-            sample -- bool flag to sample or return expectation value
-
-        Output:
-            psi -- batch of collapsed states if sample==True, otherwise same
-                   as input psi; shape=[batch_size,2N]
-            z -- batch of measurement outcomes if sample==True, otherwise
-                 batch of expectation values of qubit sigma_z.
-
-        """
-        CT = self.ctrl(self.I, U)
-        Phase = self.rotate_qb_z(tf.squeeze(angle))
-
-        psi = tf.linalg.matvec(self.hadamard, psi)
-        psi = tf.linalg.matvec(CT, psi)
-        psi = tf.linalg.matvec(Phase, psi)
-        psi = tf.linalg.matvec(self.hadamard, psi)
-        return measurement(psi, self.P, sample)
+    def compute_tomo_ops(self, alphas_flat):
+        use_precompute = False
+        cond1 = self.tomo_ops is not None
+        cond2 = cond1 and self.alphas_flat.shape == alphas_flat.shape
+        cond3 = cond2 and all(tf.equal(self.alphas_flat, alphas_flat))
+        if cond3:
+            print("using precomputed tomo ops.")
+        else:
+            print("constructing tomo ops...")
+            # create parity ops with N large, then truncate to N.
+            self.alphas_flat = tf.constant(alphas_flat)
+            self.tomo_ops = self.displaced_parity_large(alphas_flat)
+        return self.tomo_ops
 
     @tf.function
     def wigner(self, psi, alphas):
         alphas_flat = tf.reshape(alphas, [-1])
         # create parity ops with N large, then truncate to N.
-        parity_ops = self.displaced_parity_large(alphas_flat)
+        parity_ops = self.compute_tomo_ops(alphas_flat)
         W = expectation(psi, parity_ops, reduce_batch=False)
         return tf.reshape(W, alphas.shape)
 
-    @tf.function
+    # @tf.function
     def wigner_batch(self, psi_batch, alphas):
         alphas_flat = tf.reshape(alphas, [-1])
         # create parity ops with N large, then truncate to N.
-        parity_ops = self.displaced_parity_large(alphas_flat)
+        parity_ops = self.compute_tomo_ops(alphas_flat)
         W = batch_expect(psi_batch, parity_ops)
         W_shape = (
             [W.shape[0], alphas.shape[0], alphas.shape[1]]

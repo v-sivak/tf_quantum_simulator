@@ -58,7 +58,7 @@ if True:
     discrete_step_duration = 100e-9
 
 ### Alec's units: Hamiltonian terms in GRad/s, time step is in ns
-if True:
+if False:
     # Oscillator
     chi = 2 * np.pi * 1e-6 * 80
     kappa = 1 / (1e6)
@@ -76,3 +76,22 @@ if True:
 
     # Simulator discretization in ns
     discrete_step_duration = 5.0
+
+if True:
+    # Oscillator
+    chi = 2 * np.pi * 1e-6 * 80
+    kappa = 1 / (1e6)
+    kerr = 2 * np.pi * 1e-6 * 2
+
+    # qubit
+    gamma_1 = 1 / (50e3)
+    gamma_phi = 0
+
+    # Hilbert space size
+    N = 200
+
+    # Hilbert space size for intermediate calculation of displacement operators for tomography
+    N_large = 200
+
+    # Simulator discretization in ns
+    discrete_step_duration = 1.0
