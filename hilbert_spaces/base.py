@@ -25,6 +25,7 @@ class HilbertSpace(ABC):
         Args:
             discrete_step_duration (float): Simulator time discretization in seconds.
         """
+        self.discrete_step_duration = discrete_step_duration
         # Tensor ops acting on oscillator Hilbert space
         self._define_fixed_operators()
 
@@ -49,6 +50,7 @@ class HilbertSpace(ABC):
                 )
                 return times, result
 
+        # todo: make this work:
         # self.simulate = tf.function(simulate)
         self.simulate = simulate
 
@@ -89,9 +91,9 @@ class HilbertSpace(ABC):
             H_args: arguments passed to Hamiltonian function
         """
         Kraus = {}
-        Kraus[0] = self.I - 1j * self._hamiltonian(*H_args) * dt
+        # Kraus[0] = self.I - 1j * self._hamiltonian(*H_args) * dt
+        Kraus[0] = tf.linalg.expm(-1j * self._hamiltonian(*H_args) * dt)
         for i, c in enumerate(self._collapse_operators):
             Kraus[i + 1] = tf.cast(tf.sqrt(dt), dtype=tf.complex64) * c
             Kraus[0] -= 1 / 2 * tf.linalg.matmul(c, c, adjoint_a=True) * dt
-
         return Kraus

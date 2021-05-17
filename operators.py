@@ -7,7 +7,7 @@ Created on Mon Nov 23 22:38:34 2020
 from math import pi, sqrt
 import tensorflow as tf
 from tensorflow import complex64 as c64
-from simulator.utils import tensor
+from tf_quantum_simulator.utils import tensor
 
 from distutils.version import LooseVersion
 

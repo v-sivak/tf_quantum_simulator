@@ -54,7 +54,6 @@ class QuantumTrajectorySim:
         """
         # take K0 anywhere where, for some reason, a trajectory was not taken.
         state = tf.where(traj_not_taken, traj[0], state)
-
         if save_frequency > 0 and j % save_frequency == 0:
             self.psi_history.append(state)
         return [j + 1, state, steps, save_frequency]
@@ -70,7 +69,6 @@ class QuantumTrajectorySim:
             psi (Tensor([B1,...Bb,N], c64)): batch of quantum states.
             steps (int): number of steps to run the trajectory
         """
-        print(save_frequency)
         if save_frequency > 0:
             self.psi_history = []
         psi, _ = normalize(psi)
