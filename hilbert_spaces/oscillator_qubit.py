@@ -8,9 +8,10 @@ Created on Tue Aug 04 16:08:01 2020
 import tensorflow as tf
 from numpy import pi, sqrt
 from tensorflow import complex64 as c64
-from simulator.utils import measurement, tensor
+from tf_quantum_simulator.utils import measurement, tensor
 from .base import HilbertSpace
-from simulator import operators as ops
+from tf_quantum_simulator import operators as ops
+
 
 class OscillatorQubit(HilbertSpace):
     """
@@ -38,7 +39,7 @@ class OscillatorQubit(HilbertSpace):
         self._T2_qb = T2_qb
         self._chi_prime = chi_prime
 
-        self._T2_star_qb = 1 / (1 / T2_qb - 1 / (2 * T1_qb))  
+        self._T2_star_qb = 1 / (1 / T2_qb - 1 / (2 * T1_qb))
         super().__init__(self, *args, **kwargs)
 
     def _define_fixed_operators(self):
@@ -60,7 +61,7 @@ class OscillatorQubit(HilbertSpace):
         tensor_with = [ops.identity(2), None]
         self.phase = ops.Phase()
         self.translate = ops.TranslationOperator(N, tensor_with=tensor_with)
-        self.displace = lambda a: self.translate(sqrt(2)*a)
+        self.displace = lambda a: self.translate(sqrt(2) * a)
         self.rotate = ops.RotationOperator(N, tensor_with=tensor_with)
 
         self.SNAP = ops.SNAP(N, tensor_with=tensor_with)
@@ -69,35 +70,30 @@ class OscillatorQubit(HilbertSpace):
         tensor_with = [None, ops.identity(N)]
         self.rotate_qb_xy = ops.QubitRotationXY(tensor_with=tensor_with)
         self.rotate_qb_z = ops.QubitRotationZ(tensor_with=tensor_with)
-        self.rxp = self.rotate_qb_xy(tf.constant(pi/2), tf.constant(0))
-        self.rxm = self.rotate_qb_xy(tf.constant(-pi/2), tf.constant(0))
-        
-        # qubit sigma_z measurement projector
-        self.P = {i : tensor([ops.projector(i,2), ops.identity(N)])
-                  for i in [0, 1]}
+        self.rxp = self.rotate_qb_xy(tf.constant(pi / 2), tf.constant(0))
+        self.rxm = self.rotate_qb_xy(tf.constant(-pi / 2), tf.constant(0))
 
-        self.sx_selective = tensor([ops.sigma_x(), ops.projector(0, N)]) + \
-            tensor([ops.identity(2), ops.identity(N)-ops.projector(0, N)])
+        # qubit sigma_z measurement projector
+        self.P = {i: tensor([ops.projector(i, 2), ops.identity(N)]) for i in [0, 1]}
+
+        self.sx_selective = tensor([ops.sigma_x(), ops.projector(0, N)]) + tensor(
+            [ops.identity(2), ops.identity(N) - ops.projector(0, N)]
+        )
 
     @property
     def _hamiltonian(self):
-        chi_prime = 1/4 * (2*pi) * self._chi_prime * self.ctrl(self.n**2, -self.n**2)
-        kerr = - 1/2 * (2*pi) * self._K_osc * self.n ** 2  # Kerr
+        chi_prime = (
+            1 / 4 * (2 * pi) * self._chi_prime * self.ctrl(self.n ** 2, -self.n ** 2)
+        )
+        kerr = -1 / 2 * (2 * pi) * self._K_osc * self.n ** 2  # Kerr
         return kerr + chi_prime
 
     @property
     def _collapse_operators(self):
-        photon_loss = (
-            tf.cast(tf.sqrt(1/self._T1_osc), dtype=tf.complex64)
-            * self.a
-        )
-        qubit_decay = (
-            tf.cast(tf.sqrt(1/self._T1_qb), dtype=tf.complex64)
-            * self.sm
-        )
+        photon_loss = tf.cast(tf.sqrt(1 / self._T1_osc), dtype=tf.complex64) * self.a
+        qubit_decay = tf.cast(tf.sqrt(1 / self._T1_qb), dtype=tf.complex64) * self.sm
         qubit_dephasing = (
-            tf.cast(tf.sqrt(1/(2*self._T2_star_qb)), dtype=tf.complex64)
-            * self.sz
+            tf.cast(tf.sqrt(1 / (2 * self._T2_star_qb)), dtype=tf.complex64) * self.sz
         )
 
         return [photon_loss, qubit_decay, qubit_dephasing]

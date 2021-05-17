@@ -12,7 +12,14 @@ import qutip as qt
 import numpy as np
 import numpy.testing as npt
 
-from simulator.operators import identity, num, destroy, create, position, momentum
+from tf_quantum_simulator.operators import (
+    identity,
+    num,
+    destroy,
+    create,
+    position,
+    momentum,
+)
 
 
 class TestOperators(unittest.TestCase):

@@ -9,9 +9,10 @@ from math import pi, sqrt
 import tensorflow as tf
 from tensorflow import complex64 as c64
 from tensorflow.keras.backend import batch_dot
-from simulator import operators as ops
-from simulator.utils import measurement
+from tf_quantum_simulator import operators as ops
+from tf_quantum_simulator.utils import measurement
 from .base import HilbertSpace
+
 
 class Oscillator(HilbertSpace):
     """
@@ -44,10 +45,10 @@ class Oscillator(HilbertSpace):
         self.n = ops.num(N)
         self.parity = ops.parity(N)
         self.phase = ops.Phase()
-        
+
         self.rotate = ops.RotationOperator(N)
         self.translate = ops.TranslationOperator(N)
-        self.displace = lambda a: self.translate(sqrt(2)*a)
+        self.displace = lambda a: self.translate(sqrt(2) * a)
         self.SNAP = ops.SNAP(N)
 
     @property
@@ -56,10 +57,7 @@ class Oscillator(HilbertSpace):
 
     @property
     def _collapse_operators(self):
-        photon_loss = (
-            tf.cast(tf.sqrt(1/self._T1_osc), dtype=tf.complex64)
-            * self.a
-        )
+        photon_loss = tf.cast(tf.sqrt(1 / self._T1_osc), dtype=tf.complex64) * self.a
 
         return [photon_loss]
 
@@ -82,8 +80,8 @@ class Oscillator(HilbertSpace):
 
         """
         Kraus = {}
-        Kraus[0] = 1/2*(self.I + self.phase(angle)*U)
-        Kraus[1] = 1/2*(self.I - self.phase(angle)*U)
+        Kraus[0] = 1 / 2 * (self.I + self.phase(angle) * U)
+        Kraus[1] = 1 / 2 * (self.I - self.phase(angle) * U)
 
         return measurement(psi, Kraus, sample)
 

@@ -51,7 +51,7 @@ def disp_op_laguerre(disps, N=7):
 
 
 def create_disp_op_tf(betas, N_large=100, N=7):
-    from simulator import operators as ops
+    from tf_quantum_simulator import operators as ops
 
     D = ops.DisplacementOperator(N_large)
     # Convert to lower-dimentional Hilbert space; shape=[N_alpha,N,N]

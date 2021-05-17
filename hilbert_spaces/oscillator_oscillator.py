@@ -7,12 +7,12 @@ Created on Fri Dec 11 14:36:31 2020
 
 import tensorflow as tf
 from math import pi, sqrt
-from simulator.utils import measurement, tensor
-from simulator.hilbert_spaces.base import HilbertSpace
-from simulator import operators as ops
+from tf_quantum_simulator.utils import measurement, tensor
+from tf_quantum_simulator.hilbert_spaces.base import HilbertSpace
+from tf_quantum_simulator import operators as ops
+
 
 class OscillatorOscillator(HilbertSpace):
-
     def __init__(self, *args, N1=100, N2=100, **kwargs):
         """
         Args:
@@ -30,7 +30,7 @@ class OscillatorOscillator(HilbertSpace):
     def _define_fixed_operators(self):
         N1 = self.N1
         N2 = self.N2
-        
+
         self.I = tensor([ops.identity(N1), ops.identity(N2)])
         self.a1 = tensor([ops.destroy(N1), ops.identity(N2)])
         self.a1_dag = tensor([ops.create(N1), ops.identity(N2)])
@@ -44,17 +44,16 @@ class OscillatorOscillator(HilbertSpace):
         self.n2 = tensor([ops.identity(N1), ops.num(N2)])
         self.parity1 = tensor([ops.parity(N1), ops.identity(N2)])
         self.parity2 = tensor([ops.identity(N1), ops.parity(N2)])
-        
+
         tensor_with = [None, ops.identity(N2)]
         self.translate1 = ops.TranslationOperator(N1, tensor_with=tensor_with)
-        self.displace1 = lambda a: self.translate1(sqrt(2)*a)
+        self.displace1 = lambda a: self.translate1(sqrt(2) * a)
         self.rotate1 = ops.RotationOperator(N1, tensor_with=tensor_with)
 
         tensor_with = [ops.identity(N1), None]
         self.translate2 = ops.TranslationOperator(N2, tensor_with=tensor_with)
-        self.displace2 = lambda a: self.translate2(sqrt(2)*a)
+        self.displace2 = lambda a: self.translate2(sqrt(2) * a)
         self.rotate2 = ops.RotationOperator(N2, tensor_with=tensor_with)
-
 
     @property
     def _hamiltonian(self):
@@ -64,8 +63,8 @@ class OscillatorOscillator(HilbertSpace):
 
     @property
     def _collapse_operators(self):
-        photon_loss1 = sqrt(1/self.T1_osc1) * self.a1
-        photon_loss2 = sqrt(1/self.T1_osc2) * self.a2
+        photon_loss1 = sqrt(1 / self.T1_osc1) * self.a1
+        photon_loss2 = sqrt(1 / self.T1_osc2) * self.a2
 
         return [photon_loss1, photon_loss2]
 

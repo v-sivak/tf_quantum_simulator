@@ -33,7 +33,7 @@ trace = tf.linalg.trace
 
 # N_large is dimension used to compute the tomography matrix
 def create_displaced_parity_tf(alphas, N_large=100, N=7):
-    from simulator import operators as ops
+    from tf_quantum_simulator import operators as ops
 
     D = ops.DisplacementOperator(N_large)
     P = ops.parity(N_large)
@@ -48,7 +48,7 @@ def create_displaced_parity_tf(alphas, N_large=100, N=7):
 
 
 def create_disp_op_tf(betas, N_large=100, N=7):
-    from simulator import operators as ops
+    from tf_quantum_simulator import operators as ops
 
     D = ops.DisplacementOperator(N_large)
     # Convert to lower-dimentional Hilbert space; shape=[N_alpha,N,N]
@@ -247,8 +247,8 @@ def reconstruct_state_cf(
             A, B = self._weights
             # it works with inequality constraints
             # adding more weight to these constraints
-            trace_le_1 = 1000*(trace(A + tf.transpose(A)) - 1)
-            trace_gr_1 = 1000*(1 - trace(A + tf.transpose(A)))
+            trace_le_1 = 1000 * (trace(A + tf.transpose(A)) - 1)
+            trace_gr_1 = 1000 * (1 - trace(A + tf.transpose(A)))
             constraints = tf.stack([trace_le_1, trace_gr_1])
             return constraints
 

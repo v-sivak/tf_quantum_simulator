@@ -22,7 +22,7 @@ trace = tf.linalg.trace
 
 # N_large is dimension used to compute the tomography matrix
 def create_displaced_parity_tf(alphas, N_large=100, N=7):
-    from simulator import operators as ops
+    from tf_quantum_simulator import operators as ops
 
     D = ops.DisplacementOperator(N_large)
     P = ops.parity(N_large)

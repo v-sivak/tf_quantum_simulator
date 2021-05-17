@@ -9,9 +9,9 @@ import unittest
 
 import tensorflow as tf
 
-from simulator.operators import momentum, position
-from simulator.mixins import BatchOperatorMixinBCH
-from simulator.tests.utils import coeff_err, random_alphas
+from tf_quantum_simulator.operators import momentum, position
+from tf_quantum_simulator.mixins import BatchOperatorMixinBCH
+from tf_quantum_simulator.tests.utils import coeff_err, random_alphas
 
 
 class TestHarnessClass(BatchOperatorMixinBCH):
