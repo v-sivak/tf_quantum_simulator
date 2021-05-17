@@ -18,7 +18,7 @@ def normalize(state):
         state_normalized (Tensor([B1,...Bb,N], c64)): normalized quantum state
         norm (Tensor([B1,...Bb,1], c64)): norm of the batch of states
     """
-    # state = tf.cast(state, dtype=tf.complex128)
+    # state = tf.cast(state, dtype=tf.complex64)
     normalized, norm = tf.linalg.normalize(state, axis=-1)
     # normalized = tf.cast(state, dtype=tf.complex64)
     # norm = tf.einsum("...ij->...i", tf.math.abs(state) ** 2)
@@ -199,6 +199,12 @@ def batch_psi_expect(psi_batch, O):
     )
 
 
+@tf.function
+def purity(psi_batch):
+    rho = density_matrix(psi_batch)
+    return tf.linalg.trace(rho @ rho)
+
+
 # batch of operators and batch of states --> average expectation value for each operator
 # Can support state with two batch dimensions [b1, b2, N]
 # will average over b2.
@@ -216,3 +222,11 @@ def copy_state_to_batch(state, batch_size):
     s = tf.tile(state, [batch_size])
     return tf.reshape(s, [batch_size, state.shape[0]])
 
+
+def postselect(psi_batch, measurement_results):
+    measurement_results = tf.squeeze(measurement_results)
+    plus_idxs = tf.squeeze(tf.where(measurement_results == +1))
+    minus_idxs = tf.squeeze(tf.where(measurement_results == -1))
+    psi_plus_batch = tf.gather(psi_batch, plus_idxs)
+    psi_minus_batch = tf.gather(psi_batch, minus_idxs)
+    return psi_plus_batch, psi_minus_batch

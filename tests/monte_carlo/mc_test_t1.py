@@ -12,6 +12,7 @@ params = {k: v for k, v in config.__dict__.items() if '__' not in k}
 params['gamma_1'] = 1/5e3
 params['gamma_phi'] = 0
 params['kappa'] = 0
+params['discrete_step_duration'] = 20.0
 print("Simulation parameters:")
 print(params)
 system = DisplacedOscillatorQubit(**params)

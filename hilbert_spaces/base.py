@@ -92,6 +92,7 @@ class HilbertSpace(ABC):
         """
         Kraus = {}
         # Kraus[0] = self.I - 1j * self._hamiltonian(*H_args) * dt
+        # note: could save this to avoid re-calculation!
         Kraus[0] = tf.linalg.expm(-1j * self._hamiltonian(*H_args) * dt)
         for i, c in enumerate(self._collapse_operators):
             Kraus[i + 1] = tf.cast(tf.sqrt(dt), dtype=tf.complex64) * c

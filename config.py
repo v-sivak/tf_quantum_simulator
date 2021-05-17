@@ -34,7 +34,7 @@ if False:
     discrete_step_duration = 100e-9
 
 ### Alec's system
-if True:
+if False:
     # Oscillator
     T1_osc = 245e-6
     T2_osc = None
@@ -81,17 +81,38 @@ if True:
     # Oscillator
     chi = 2 * np.pi * 1e-6 * 80
     kappa = 1 / (1e6)
-    kerr = 2 * np.pi * 1e-6 * 2
+    kerr = 0  # 2 * np.pi * 1e-6 * 2
 
     # qubit
     gamma_1 = 1 / (50e3)
     gamma_phi = 0
 
     # Hilbert space size
-    N = 200
+    N = 70
 
     # Hilbert space size for intermediate calculation of displacement operators for tomography
-    N_large = 200
+    N_large = 150
 
     # Simulator discretization in ns
     discrete_step_duration = 1.0
+
+# Old sharpen trim experiment parameters
+if False:
+    # Oscillator
+    chi = 2 * np.pi * 1e-6 * 29
+    kappa = 1 / (250e3)
+    kerr = 0  # 2 * np.pi * 1e-6 * 2
+
+    # qubit
+    gamma_1 = 1 / (50e3)
+    gamma_phi = 0
+
+    # Hilbert space size
+    N = 70
+
+    # Hilbert space size for intermediate calculation of displacement operators for tomography
+    N_large = 150
+
+    # Simulator discretization in ns
+    discrete_step_duration = 10.0
+
