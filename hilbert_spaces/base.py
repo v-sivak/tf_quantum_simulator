@@ -29,7 +29,7 @@ class HilbertSpace(ABC):
         # Tensor ops acting on oscillator Hilbert space
         self._define_fixed_operators()
 
-        # Initialize quantum trajectories simulator
+        # Initialize quantum trajectories simulatorP
         self.mcsim = lambda *H_args: QuantumTrajectorySim(
             self._kraus_ops(discrete_step_duration, *H_args)
         )

@@ -26,7 +26,7 @@ psi0, _ = normalize(tf.linalg.matvec(D, psi0))
 #%%
 alpha = 0.0
 t_max = 5000
-n_traj = 2000
+n_traj = 100
 save_frequency = 150
 psi0_batch = copy_state_to_batch(psi0,n_traj)
 ts, result = system.simulate(psi0_batch, t_max, alpha, save_frequency=save_frequency)
@@ -46,19 +46,20 @@ plt.ylabel('<n>')
 plt.xlabel('t ns')
 plt.title('cat decay experiment')
 # %%
-xvec = np.linspace(-4,4,81)
+xvec = np.linspace(-4,4,61)
 x,y = np.meshgrid(xvec,xvec)
 alphas = x + 1j*y
 #%%
 W = system.wigner_batch(result, alphas)
 # %%
 num = steps
-fig, axs = plt.subplots(1, num, figsize=(12,2))
+#fig, axs = plt.subplots(1, num, figsize=(12,2))
 for i, w, t in zip(np.arange(len(W)),W,ts):
-    axs[i].pcolormesh(xvec, xvec, np.real(w.numpy()), cmap='seismic', vmin=-1, vmax=+1)
-    axs[i].set_xticks([])
-    axs[i].set_yticks([])
-    axs[i].set_title('t = %.2f us' % (t/1e3))
-    axs[i].set_aspect('equal')
-fig.savefig('cat_decay_example.png', dpi=300)
+    fig, axs = plt.subplots(1, 1, figsize=(2,2))
+    axs.pcolormesh(xvec, xvec, np.real(w.numpy()), cmap='seismic', vmin=-1, vmax=+1)
+    axs.set_xticks([])
+    axs.set_yticks([])
+    axs.set_title('t = %.2f us' % (t/1e3))
+    axs.set_aspect('equal')
+#fig.savefig('cat_decay_example.png', dpi=300)
 # %%

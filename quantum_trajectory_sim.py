@@ -30,7 +30,7 @@ class QuantumTrajectorySim:
         cumulant = tf.zeros([psi.shape[0], 1])
         prob = tf.random.uniform([psi.shape[0], 1])
         state = psi
-        masks = []
+        # masks = []
         for i, Kraus in self.Kraus_operators.items():
             # Compute a trajectory for this Kraus operator
             traj[i] = tf.linalg.matvec(Kraus, psi)  # shape = [b,N]
@@ -39,11 +39,13 @@ class QuantumTrajectorySim:
             # Select this trajectory depending on sampled 'prob'
             # need to understand why this is failing sometimes....
             mask = tf.math.logical_and(prob > cumulant, prob < cumulant + p[i])
-            masks.append(mask)
+            # masks.append(mask)
             state = tf.where(mask, traj[i], state)
             # Update cumulant
             cumulant += p[i]
-        traj_not_taken = tf.logical_not(tf.reduce_any(tf.stack(masks), axis=0))
+        # traj_not_taken = tf.logical_not(tf.reduce_any(tf.stack(masks), axis=0))
+        '''
+        traj_not_taken = tf.logical_not(tf.reduce_any(masks, axis=0))
         """
         num_not_taken = tf.reduce_sum(tf.cast(traj_not_taken, tf.float32)).numpy()
         if num_not_taken > 0:
@@ -54,7 +56,10 @@ class QuantumTrajectorySim:
         """
         # take K0 anywhere where, for some reason, a trajectory was not taken.
         state = tf.where(traj_not_taken, traj[0], state)
-        if save_frequency > 0 and j % save_frequency == 0:
+        '''
+        # print(save_frequency)
+        # print(j)
+        if save_frequency > 0 and tf.math.floormod(j, save_frequency) == 0:
             self.psi_history.append(state)
         return [j + 1, state, steps, save_frequency]
 

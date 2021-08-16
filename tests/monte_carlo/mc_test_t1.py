@@ -23,7 +23,7 @@ psi0 = Kronecker_product([basis(1,2), basis(0,N)])[0]
 #%%
 alpha = 0.0
 t_max = 10000
-n_traj = 2000
+n_traj = 400
 save_frequency = 100
 psi0_batch = copy_state_to_batch(psi0,n_traj)
 ts, result = system.simulate(psi0_batch, t_max, alpha, save_frequency=save_frequency)

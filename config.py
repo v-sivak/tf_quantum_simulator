@@ -85,13 +85,14 @@ if True:
 
     # qubit
     gamma_1 = 1 / (50e3)
-    gamma_phi = 0
+    gamma_2 = 1 / (50e3)
+    gamma_phi = gamma_2 - gamma_1 / 2.0
 
     # Hilbert space size
-    N = 70
+    N = 125
 
     # Hilbert space size for intermediate calculation of displacement operators for tomography
-    N_large = 150
+    N_large = 200
 
     # Simulator discretization in ns
     discrete_step_duration = 1.0
