@@ -23,42 +23,29 @@ class QuantumTrajectorySim:
         self.Kraus_operators = Kraus_operators
 
     def _step(self, j, psi, steps, save_frequency):
+        """ 
+        A single trajectory step: calculate probabilities associated to
+        different Kraus ops, and sample Kraus ops from this distribution.
+        
         """
-        One step in the Markov chain.
-        """
-        traj, p, norm = {}, {}, {}
-        cumulant = tf.zeros([psi.shape[0], 1])
-        prob = tf.random.uniform([psi.shape[0], 1])
+        batch_shape = psi.shape[:-1]
+        cumulant = tf.zeros(batch_shape+[1])
+        prob = tf.random.uniform(batch_shape+[1])
+        check = tf.zeros(batch_shape+[1], dtype=bool) # check if all probs sum to 1
         state = psi
-        # masks = []
         for i, Kraus in self.Kraus_operators.items():
             # Compute a trajectory for this Kraus operator
-            traj[i] = tf.linalg.matvec(Kraus, psi)  # shape = [b,N]
-            traj[i], norm[i] = normalize(traj[i])
-            p[i] = tf.math.real(norm[i]) ** 2
+            traj = tf.linalg.matvec(Kraus, psi)  # shape = [B1,...Bb,N]
+            traj, norm = normalize(traj)
+            # Probability that this Kraus applies. These should sum to 1.
+            p = tf.math.real(norm) ** 2
             # Select this trajectory depending on sampled 'prob'
-            # need to understand why this is failing sometimes....
-            mask = tf.math.logical_and(prob > cumulant, prob < cumulant + p[i])
-            # masks.append(mask)
-            state = tf.where(mask, traj[i], state)
-            # Update cumulant
-            cumulant += p[i]
-        # traj_not_taken = tf.logical_not(tf.reduce_any(tf.stack(masks), axis=0))
-        '''
-        traj_not_taken = tf.logical_not(tf.reduce_any(masks, axis=0))
-        """
-        num_not_taken = tf.reduce_sum(tf.cast(traj_not_taken, tf.float32)).numpy()
-        if num_not_taken > 0:
-            print(
-                "step %d num trajectories where krauss not taken: %d"
-                % (j, num_not_taken)
-            )
-        """
-        # take K0 anywhere where, for some reason, a trajectory was not taken.
-        state = tf.where(traj_not_taken, traj[0], state)
-        '''
-        # print(save_frequency)
-        # print(j)
+            mask = tf.math.logical_and(prob > cumulant, prob < cumulant + p)
+            check = tf.math.logical_or(mask, check)
+            state = tf.where(mask, traj, state)
+            cumulant += p
+        if tf.math.reduce_any(tf.math.logical_not(check)):
+            raise Exception('Probabilities not summing to 1.')
         if save_frequency > 0 and tf.math.floormod(j, save_frequency) == 0:
             self.psi_history.append(state)
         return [j + 1, state, steps, save_frequency]
@@ -74,8 +61,9 @@ class QuantumTrajectorySim:
             psi (Tensor([B1,...Bb,N], c64)): batch of quantum states.
             steps (int): number of steps to run the trajectory
         """
-        if save_frequency > 0:
+        if save_frequency > 0: # FIXME: pass save_frequency on initialization
             self.psi_history = []
+        
         psi, _ = normalize(psi)
         j = tf.constant(0)
         _, psi_new, _, _ = tf.while_loop(
@@ -83,7 +71,8 @@ class QuantumTrajectorySim:
         )
 
         if save_frequency > 0:
-            return tf.stack(self.psi_history)
+            return tf.stack(self.psi_history) # FIXME: tf.stack is super slow
+        
         # Check for NaN
         mask = tf.math.is_nan(tf.math.real(psi_new))
         psi_new = tf.where(mask, psi, psi_new)
