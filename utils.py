@@ -18,12 +18,7 @@ def normalize(state):
         state_normalized (Tensor([B1,...Bb,N], c64)): normalized quantum state
         norm (Tensor([B1,...Bb,1], c64)): norm of the batch of states
     """
-    # state = tf.cast(state, dtype=tf.complex64)
     normalized, norm = tf.linalg.normalize(state, axis=-1)
-    # normalized = tf.cast(state, dtype=tf.complex64)
-    # norm = tf.einsum("...ij->...i", tf.math.abs(state) ** 2)
-    # norm = tf.cast(norm, dtype=c64)
-    # normalized = tf.einsum("i,ij->ij", 1 / norm, state)
     mask = tf.math.is_nan(tf.math.real(normalized))
     state_normalized = tf.where(mask, tf.zeros_like(normalized), normalized)
     return state_normalized, norm
@@ -130,7 +125,7 @@ def expectation(state, operator, reduce_batch=True):
         1) state.shape = [B1,...,Bb,N]
            operator.shape  = [B1,...,Bb,N,N]
            
-           Returns a batch of expectation values of shape=[B1,...,Bb,1] 
+           Returns a batch of expectation values of shape=[B1,...,Bb,1]
         
         2) shape.shape = [1,N] or [N]
            operator.shape  = [B1,...,Bb,N,N]
@@ -164,20 +159,45 @@ def tensor(operators):
     return tensor_prod
 
 
-# basic utility functions added by Alec. Will add documentation soon.
-
-# can work with batched ket and bras
 @tf.function
 def outer_product(psi1, psi2):
+    """
+    Outer product of two batched state vectors. 
+    Example use case: create a batch of projectors.
+    
+    Args:
+        state1, state2 (Tensor([B1,...Bb,N], c64)): batch of quantum states.
+    
+    Returns:
+        Tensor([B1,...Bb,N,N], c64)
+    """
     return tf.einsum("...i,...j->...ij", psi1, tf.math.conj(psi2))
 
 
-# takes a batch of states and returns a density matrix
 @tf.function
-def density_matrix(psi_batch):
-    norm = tf.constant((1 / psi_batch.shape[0]), dtype=tf.complex64)
-    return norm * tf.reduce_sum(outer_product(psi_batch, psi_batch), axis=0)
+def density_matrix(state, axis=None, keepdims=False):
+    """
+    Args:
+        state (Tensor([B1,...Bb,N], c64)): batch of quantum states.
+        axis: the dimensions to reduce. If None (default), reduces all dims
+            and returns density matrix with shape=[N,N].
+        keepdims (bool): if True, retains reduced dimensions with length 1.
+    
+    Returns:
+        Tensor([...,N,N], c64) density matrix based on the ensamble of pure 
+        states. Shape depends on the 'axis' and 'keepdims' parameters.
+    """
+    axis = tf.range(len(state.shape[:-1])) if axis==None else axis
+    state, _ = normalize(state) # shape=[B1,...Bb,N]
+    dm = outer_product(state, state) # shape=[B1,...Bb,N,N]
+    dm = tf.reduce_mean(dm, axis=axis, keepdims=keepdims)
+    return dm
 
+
+
+# basic utility functions added by Alec. Will add documentation soon.
+# TODO: review and document down from this line
+# ----------------------------------------------------------------------------
 
 # basic expectation value
 @tf.function
