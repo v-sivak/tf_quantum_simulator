@@ -7,8 +7,8 @@ Created on Wed Sep 29 11:22:21 2021
 import tensorflow as tf
 from tensorflow.keras import initializers
 from tensorflow import complex64 as c64
-from tf_quantum_simulator import operators as ops
-from tf_quantum_simulator import utils
+import operators as ops
+import utils
 
 
 class QubitRotation(tf.keras.layers.Layer):

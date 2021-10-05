@@ -5,7 +5,7 @@ Created on Wed Sep 29 11:23:47 2021
 @author: Vladimir Sivak
 """
 import tensorflow as tf
-from tf_quantum_simulator import utils
+import utils
 
 
 class MinInfidelity(tf.keras.metrics.Metric):

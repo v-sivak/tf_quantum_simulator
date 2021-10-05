@@ -8,7 +8,6 @@ import tensorflow as tf
 from tensorflow import complex64 as c64
 import tensorflow_probability as tfp
 
-
 def normalize(state):
     """
     Args:
@@ -192,6 +191,10 @@ def density_matrix(state, axis=None, keepdims=False):
     dm = outer_product(state, state) # shape=[B1,...Bb,N,N]
     dm = tf.reduce_mean(dm, axis=axis, keepdims=keepdims)
     return dm
+
+
+def log_infidelity(state, target):
+    return tf.math.log(1-tf.math.abs(batch_dot(state, target))**2)
 
 
 

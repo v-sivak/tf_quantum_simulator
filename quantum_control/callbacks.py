@@ -7,7 +7,7 @@ Created on Wed Sep 29 11:24:15 2021
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
-from tf_quantum_simulator import utils
+import utils
 
 
 class PlotCallback(tf.keras.callbacks.Callback):
