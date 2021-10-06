@@ -12,8 +12,8 @@ import utils
 
 
 class QubitRotation(tf.keras.layers.Layer):
-    def __init__(self, N, batch_shape):
-        super().__init__()
+    def __init__(self, N, batch_shape, name='qubit_rotation'):
+        super().__init__(name=name)
         self.rotation_op = ops.QubitRotationXY(tensor_with=[None, ops.identity(N)])
         self.batch_shape = batch_shape
         
@@ -30,9 +30,10 @@ class QubitRotation(tf.keras.layers.Layer):
 
 
 class ConditionalDisplacement(tf.keras.layers.Layer):
-    def __init__(self, N, batch_shape):
-        super().__init__()
-        self.displace = ops.DisplacementOperator(N, tensor_with=[ops.identity(2), None])
+    def __init__(self, N, batch_shape, echo_pulse=True, name='conditional_displacement'):
+        super().__init__(name=name)
+        qubit_op = ops.sigma_x() if echo_pulse else ops.identity(2)
+        self.displace = ops.DisplacementOperator(N, tensor_with=[qubit_op, None])
         self.P = {i: utils.tensor([ops.projector(i, 2), ops.identity(N)]) for i in [0, 1]}
         self.batch_shape = batch_shape
         

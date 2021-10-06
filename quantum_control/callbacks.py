@@ -32,3 +32,30 @@ class PlotCallback(tf.keras.callbacks.Callback):
             self.ax.set_xlabel('Epoch')
             plt.tight_layout()
             plt.pause(0.05)
+            
+
+class MinInfidelity(tf.keras.callbacks.Callback):
+    def __init__(self, vac, target):
+        self.vac = vac
+        self.target = target
+        super().__init__()
+    
+    def on_train_begin(self, logs={}):
+        self.infidelities = []
+        self.epochs = []
+        self.index = []
+            
+    def on_epoch_end(self, epoch, logs={}):
+        
+        if epoch % 10 == 0:
+            state = self.model.predict(self.vac)
+            
+            log_infidelity = utils.log_infidelity(self.target, state)
+            min_log_infidelity = tf.math.reduce_min(log_infidelity)
+            min_infidelity = float(tf.math.exp(min_log_infidelity))
+            ind = int(tf.argmin(log_infidelity, axis=1))
+        
+            self.infidelities.append(min_infidelity)
+            self.epochs.append(epoch)
+            self.index.append(ind)
+            print('Min infidelity: %.4f' % min_infidelity)
