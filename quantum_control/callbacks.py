@@ -11,9 +11,9 @@ import utils
 
 
 class PlotCallback(tf.keras.callbacks.Callback):
-    def __init__(self, vac, target):
-        self.vac = vac
-        self.target = target
+    def __init__(self, inputs, targets):
+        self.inputs = inputs
+        self.targets = targets
         super().__init__()
     
     def on_train_begin(self, logs={}):
@@ -21,8 +21,13 @@ class PlotCallback(tf.keras.callbacks.Callback):
         self.fig, self.ax =  plt.subplots(1,1)
             
     def on_epoch_end(self, epoch, logs={}):
-        state = self.model.predict(self.vac)
-        self.log.append(tf.squeeze(utils.log_infidelity(state, self.target)))
+        states = self.model.predict(self.inputs)
+        
+        infidelity = tf.math.exp(utils.log_infidelity(self.targets, states))
+        # average the infidelity over all input states.
+        avg_state_infidelity = tf.reduce_mean(infidelity, axis=0)
+        avg_state_log_infidelity = tf.math.log(avg_state_infidelity)
+        self.log.append(tf.squeeze(avg_state_log_infidelity))
         
         if epoch % 100 == 0:
             plt.cla()
@@ -35,9 +40,9 @@ class PlotCallback(tf.keras.callbacks.Callback):
             
 
 class MinInfidelity(tf.keras.callbacks.Callback):
-    def __init__(self, vac, target):
-        self.vac = vac
-        self.target = target
+    def __init__(self, inputs, targets):
+        self.inputs = inputs
+        self.targets = targets
         super().__init__()
     
     def on_train_begin(self, logs={}):
@@ -48,12 +53,13 @@ class MinInfidelity(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs={}):
         
         if epoch % 10 == 0:
-            state = self.model.predict(self.vac)
+            states = self.model.predict(self.inputs)
             
-            log_infidelity = utils.log_infidelity(self.target, state)
-            min_log_infidelity = tf.math.reduce_min(log_infidelity)
-            min_infidelity = float(tf.math.exp(min_log_infidelity))
-            ind = int(tf.argmin(log_infidelity, axis=1))
+            infidelity = tf.math.exp(utils.log_infidelity(self.targets, states))
+            # average the infidelity over all input states.
+            avg_state_infidelity = tf.reduce_mean(infidelity, axis=0)
+            min_infidelity = float(tf.math.reduce_min(avg_state_infidelity))
+            ind = int(tf.argmin(avg_state_infidelity, axis=0))
         
             self.infidelities.append(min_infidelity)
             self.epochs.append(epoch)

@@ -98,7 +98,7 @@ def GKP_1D_state(tensorstate, N, Delta):
     return tf_state
 
 
-def GKP_code(tensorstate, N, Delta, S=np.array([[1, 0], [0, 1]])):
+def GKP_code(tensorstate, N, Delta, S=np.array([[1, 0], [0, 1]]), tf_states=True):
     
     # Check if the matrix is simplectic
     Omega = np.array([[0,1],[-1,0]])
@@ -158,6 +158,10 @@ def GKP_code(tensorstate, N, Delta, S=np.array([[1, 0], [0, 1]])):
             ideal_paulis[key] = qt.tensor(qt.identity(2), val)
         for key, val in states.items():
             states[key] = qt.tensor(qt.basis(2,0), val)
+    
+    if tf_states:
+        for key, val in states.items():
+            states[key] = tf.cast(val.full().reshape([1,val.shape[0]]), c64)
 
     return ideal_stabilizers, ideal_paulis, states, displacement_amplitudes
 
