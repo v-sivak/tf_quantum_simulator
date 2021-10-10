@@ -12,7 +12,8 @@ from math import pi, sqrt
 import matplotlib.pyplot as plt
 import qutip as qt
 
-def plot_phase_space(state, tensorstate, phase_space_rep='wigner', lim=3, pts=81):
+def plot_phase_space(state, tensorstate, phase_space_rep='wigner', 
+                     lim=4, pts=81, title=None):
     """
     Plot phase space representation of the state.
     
@@ -22,19 +23,28 @@ def plot_phase_space(state, tensorstate, phase_space_rep='wigner', lim=3, pts=81
         phase_space_rep (str): either 'wigner' or 'CF'
         lim (float): plot limit in displacement units
         pts (int): number of pixels in each direction 
+        title (str): figure title (optional)
     
     """
     
     assert state.shape[0] == 1
     assert state.shape[1] > 1
     
-    if tensorstate == True:
-        raise NotImplementedError('Not supporting tensorstates yet.')
+    # create operators    
+    if tensorstate:
+        N = int(state.shape[1] / 2)
+        parity = utils.tensor([ops.identity(2), ops.parity(N)])
+        D = ops.DisplacementOperator(N, tensor_with=[ops.identity(2), None])
+    else:
+        N = state.shape[1]
+        D = ops.DisplacementOperator(N)
+        parity = ops.parity(N)
     
-    N = state.shape[1]
+    # project onto |g> subspace
+    if tensorstate:
+        P0 = utils.tensor([ops.projector(0, 2), ops.identity(N)])
+        state = tf.linalg.matvec(P0, state)
 
-    D = ops.DisplacementOperator(N)
-    parity = ops.parity(N)
 
     # Generate a grid of phase space points
     x = np.linspace(-lim, lim, pts)
@@ -52,6 +62,7 @@ def plot_phase_space(state, tensorstate, phase_space_rep='wigner', lim=3, pts=81
         W_grid = tf.reshape(W, grid.shape)
     
         fig, ax = plt.subplots(1,1)
+        fig.suptitle(title)
         ax.pcolormesh(x, y, np.transpose(W_grid.numpy().real), 
                            cmap='RdBu_r', vmin=-1/pi, vmax=1/pi)
         ax.set_aspect('equal')
@@ -61,6 +72,7 @@ def plot_phase_space(state, tensorstate, phase_space_rep='wigner', lim=3, pts=81
         C_grid = tf.reshape(C, grid.shape)
         
         fig, axes = plt.subplots(1,2, sharey=True)
+        fig.suptitle(title)
         axes[0].pcolormesh(x, y, np.transpose(C_grid.numpy().real), 
                             cmap='RdBu_r', vmin=-1, vmax=1)
         axes[1].pcolormesh(x, y, np.transpose(C_grid.numpy().imag), 
@@ -69,6 +81,8 @@ def plot_phase_space(state, tensorstate, phase_space_rep='wigner', lim=3, pts=81
         axes[1].set_title('Im')
         axes[0].set_aspect('equal')
         axes[1].set_aspect('equal')
+    
+    plt.tight_layout()
 
         
 def envelope_operator(N, Delta):

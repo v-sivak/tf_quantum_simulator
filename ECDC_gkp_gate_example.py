@@ -9,7 +9,7 @@ from quantum_control.layers import QubitRotation, ConditionalDisplacement
 from quantum_control.callbacks import PlotCallback, MinInfidelity
 
 T = 5  # circuit depth
-N = 100 # oscillator truncation
+N = 120 # oscillator truncation
 
 # use batch shape that starts with 1 to trick TF into thinking it's batch of 1
 batch_shape = [1,200]
@@ -30,6 +30,14 @@ ideal_stabilizers, ideal_paulis, states, displacement_amplitudes = \
 # specify how the gate acts on any basis of states. This is for S-gate
 gate_map = {'+X' : '+Y', 
             '-X' : '-Y'}
+
+gate_map_extended = {
+    '+X' : '+Y', 
+    '-X' : '-Y',
+    '+Y' : '-X',
+    '-Y' : '+X',
+    '+Z' : '+Z',
+    '-Z' : '-Z'} # this one also has a global phase of i
 
 # define input and output states
 inputs = tf.stack([states[i] for (i,f) in gate_map.items()])
@@ -77,3 +85,12 @@ import numpy as np
 fname = r'E:\data\gkp_sims\PPO\ECD\EXP_Vlad\ECDC_sequences\S_gate_T_%d_Delta_%.2f_F_%.4f.npz' %(T,Delta,F)
 np.savez(fname, **params)
 
+
+# Plot the effect of this gate on different basis states
+for name in states.keys():
+    input_state = states[name]
+    
+    hf.plot_phase_space(input_state, True, phase_space_rep='CF', title='Input ' + name)
+    
+    title = 'Input ' + name + '; Expected output ' + gate_map_extended[name]
+    hf.plot_phase_space(ECDC(input_state)[:,ind,:], True, phase_space_rep='CF', title=title)
