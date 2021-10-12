@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 
 import tensorflow as tf
 import tensorflow_probability as tfp
-from tf_quantum_simulator.quantum_trajectory_sim import QuantumTrajectorySim
+from quantum_trajectory_sim import QuantumTrajectorySim
 import numpy as np
 
 

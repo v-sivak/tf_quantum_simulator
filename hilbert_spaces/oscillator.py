@@ -9,8 +9,8 @@ from math import pi, sqrt
 import tensorflow as tf
 from tensorflow import complex64 as c64
 from tensorflow.keras.backend import batch_dot
-from tf_quantum_simulator import operators as ops
-from tf_quantum_simulator.utils import measurement
+import operators as ops
+from utils import measurement
 from .base import HilbertSpace
 
 

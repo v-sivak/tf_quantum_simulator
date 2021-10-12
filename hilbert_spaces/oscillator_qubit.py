@@ -8,9 +8,9 @@ Created on Tue Aug 04 16:08:01 2020
 import tensorflow as tf
 from numpy import pi, sqrt
 from tensorflow import complex64 as c64
-from tf_quantum_simulator.utils import measurement, tensor
+from utils import measurement, tensor
 from .base import HilbertSpace
-from tf_quantum_simulator import operators as ops
+import operators as ops
 
 
 class OscillatorQubit(HilbertSpace):
