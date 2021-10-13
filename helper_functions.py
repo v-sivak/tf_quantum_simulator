@@ -15,10 +15,11 @@ import qutip as qt
 def plot_phase_space(state, tensorstate, phase_space_rep='wigner', 
                      lim=4, pts=81, title=None):
     """
-    Plot phase space representation of the state.
+    Plot phase space representation of the state. Converts a batch of states
+    to density matrix.
     
     Args:
-        state (tf.Tensor([1,N], c64)): state vector
+        state (tf.Tensor([B,N], c64)): batched state vector
         tensorstate (bool): flag if tensored with qubit
         phase_space_rep (str): either 'wigner' or 'CF'
         lim (float): plot limit in displacement units
@@ -26,9 +27,8 @@ def plot_phase_space(state, tensorstate, phase_space_rep='wigner',
         title (str): figure title (optional)
     
     """
-    
-    assert state.shape[0] == 1
-    assert state.shape[1] > 1
+
+    assert len(state.shape)>=2 and state.shape[1] > 1
     
     # create operators    
     if tensorstate:
@@ -40,11 +40,13 @@ def plot_phase_space(state, tensorstate, phase_space_rep='wigner',
         D = ops.DisplacementOperator(N)
         parity = ops.parity(N)
     
-    # project onto |g> subspace
+    # project every trajectory onto |g> subspace
     if tensorstate:
         P0 = utils.tensor([ops.projector(0, 2), ops.identity(N)])
-        state = tf.linalg.matvec(P0, state)
-
+        state, _ = utils.normalize(tf.linalg.matvec(P0, state))
+    
+    # make a density matrix
+    dm = utils.density_matrix(state)
 
     # Generate a grid of phase space points
     x = np.linspace(-lim, lim, pts)
@@ -54,29 +56,31 @@ def plot_phase_space(state, tensorstate, phase_space_rep='wigner',
     grid = tf.cast(xs_mesh + 1j*ys_mesh, c64)
     grid_flat = tf.reshape(grid, [-1])
     
+    matmul = tf.linalg.matmul
+    
     # Calculate and plot the phase space representation
     if phase_space_rep == 'wigner':
-        state_reshaped = tf.broadcast_to(state, [grid_flat.shape[0], state.shape[1]])
-        state_translated = tf.linalg.matvec(D(-grid_flat), state_reshaped)
-        W = 1/pi * utils.expectation(state_translated, parity, reduce_batch=False)
+        displaced_parity = matmul(D(grid_flat), matmul(parity, D(-grid_flat)))
+        W = 1/pi * tf.linalg.trace(matmul(displaced_parity, dm))
         W_grid = tf.reshape(W, grid.shape)
     
         fig, ax = plt.subplots(1,1)
         fig.suptitle(title)
         ax.pcolormesh(x, y, np.transpose(W_grid.numpy().real), 
-                           cmap='RdBu_r', vmin=-1/pi, vmax=1/pi)
+                      cmap='RdBu_r', vmin=-1/pi, vmax=1/pi)
         ax.set_aspect('equal')
     
     if phase_space_rep == 'CF':
-        C = utils.expectation(state, D(grid_flat), reduce_batch=False)
+        
+        C = tf.linalg.trace(matmul(D(grid_flat), dm))
         C_grid = tf.reshape(C, grid.shape)
         
         fig, axes = plt.subplots(1,2, sharey=True)
         fig.suptitle(title)
         axes[0].pcolormesh(x, y, np.transpose(C_grid.numpy().real), 
-                            cmap='RdBu_r', vmin=-1, vmax=1)
+                           cmap='RdBu_r', vmin=-1, vmax=1)
         axes[1].pcolormesh(x, y, np.transpose(C_grid.numpy().imag), 
-                            cmap='RdBu_r', vmin=-1, vmax=1)
+                           cmap='RdBu_r', vmin=-1, vmax=1)
         axes[0].set_title('Re')
         axes[1].set_title('Im')
         axes[0].set_aspect('equal')
