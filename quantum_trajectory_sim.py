@@ -22,7 +22,7 @@ class QuantumTrajectorySim:
         """
         self.Kraus_operators = Kraus_operators
 
-    def _step(self, j, psi, steps, save_frequency):
+    def _step(self, j, psi, steps):
         """ 
         A single trajectory step: calculate probabilities associated to
         different Kraus ops, and sample Kraus ops from this distribution.
@@ -44,16 +44,17 @@ class QuantumTrajectorySim:
             check = tf.math.logical_or(mask, check)
             state = tf.where(mask, traj, state)
             cumulant += p
-        if tf.math.reduce_any(tf.math.logical_not(check)):
-            raise Exception('Probabilities not summing to 1.')
-        if save_frequency > 0 and tf.math.floormod(j, save_frequency) == 0:
-            self.psi_history.append(state)
-        return [j + 1, state, steps, save_frequency]
 
-    def _cond(self, j, psi, steps, save_frequency):
+        # Check if all probs sum to 1
+        all_traj_check = tf.math.reduce_all(check)
+        accept = lambda: [j + 1, state, steps]
+        repeat = lambda: [j, psi, steps]
+        return tf.cond(all_traj_check, accept, repeat)
+
+    def _cond(self, j, psi, steps):
         return tf.less(j, steps)
 
-    def run(self, psi, steps, save_frequency=0):
+    def run(self, psi, steps):
         """
         Simulate a batch of trajectories for a number of steps.
         
@@ -61,17 +62,12 @@ class QuantumTrajectorySim:
             psi (Tensor([B1,...Bb,N], c64)): batch of quantum states.
             steps (int): number of steps to run the trajectory
         """
-        if save_frequency > 0: # FIXME: pass save_frequency on initialization
-            self.psi_history = []
         
         psi, _ = normalize(psi)
         j = tf.constant(0)
-        _, psi_new, _, _ = tf.while_loop(
-            self._cond, self._step, loop_vars=[j, psi, steps, save_frequency]
+        _, psi_new, _= tf.while_loop(
+            self._cond, self._step, loop_vars=[j, psi, steps]
         )
-
-        if save_frequency > 0:
-            return tf.stack(self.psi_history) # FIXME: tf.stack is super slow
         
         # Check for NaN
         mask = tf.math.is_nan(tf.math.real(psi_new))
