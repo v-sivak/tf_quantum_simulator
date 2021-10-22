@@ -32,10 +32,10 @@ class QubitRotation(tf.keras.layers.Layer):
 class ConditionalDisplacement(tf.keras.layers.Layer):
     def __init__(self, N, batch_shape, echo_pulse=True, name='conditional_displacement'):
         super().__init__(name=name)
-        qubit_op = ops.sigma_x() if echo_pulse else ops.identity(2)
-        self.displace = ops.DisplacementOperator(N, tensor_with=[qubit_op, None])
+        self.displace = ops.DisplacementOperator(N, tensor_with=[ops.identity(2), None])
         self.P = {i: utils.tensor([ops.projector(i, 2), ops.identity(N)]) for i in [0, 1]}
         self.batch_shape = batch_shape
+        self.qubit_op = utils.tensor([ops.sigma_x(), ops.identity(N)]) if echo_pulse else ops.identity(2*N)
         
     def build(self, input_shape):
         self.beta_re = self.add_weight(shape=self.batch_shape, trainable=True, name='beta_re',
@@ -47,5 +47,6 @@ class ConditionalDisplacement(tf.keras.layers.Layer):
         beta_complex = tf.cast(self.beta_re, c64) + 1j * tf.cast(self.beta_im, c64)
         D = self.displace(beta_complex/2)
         CD = self.P[0] @ D  + self.P[1] @ tf.linalg.adjoint(D)
-        output_state = tf.linalg.matvec(CD, input_state)
+        state = tf.linalg.matvec(CD, input_state)
+        output_state = tf.linalg.matvec(self.qubit_op, state)
         return output_state
