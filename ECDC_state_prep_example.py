@@ -7,12 +7,14 @@ import utils
 from quantum_control.layers import QubitRotation, ConditionalDisplacement
 # from quantum_control.metrics import MinInfidelity
 from quantum_control.callbacks import PlotCallback, MinInfidelity
+from math import pi, sqrt
+import numpy as np
 
-T = 12  # circuit depth
-N = 100 # oscillator truncation
+T = 11  # circuit depth
+N = 120 # oscillator truncation
 
 # use batch shape that starts with 1 to trick TF into thinking it's batch of 1
-batch_shape = [1,200]
+batch_shape = [1,300]
 
 # build the circuit as a Keras model
 ECDC = tf.keras.Sequential(name='ECDC')
@@ -29,6 +31,10 @@ target = utils.Kronecker_product([utils.basis(0, 2, batch_shape), utils.basis(1,
 import helper_functions as hf
 Delta = 0.30
 target = hf.GKP_1D_state(True, N, Delta=Delta)
+# ideal_stabilizers, ideal_paulis, states, displacement_amplitudes = \
+#     hf.GKP_code(True, N, Delta=Delta, tf_states=True) #S=np.array([[1, 1/2], [0, sqrt(3)/2]])*sqrt(2/sqrt(3))
+# target = states['+Y']
+
 
 # define the loss function and optimizer
 def loss(state, target):

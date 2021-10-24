@@ -2,17 +2,23 @@
 """
 Created on Wed Oct  6 13:06:05 2021
 """
+import os
+os.environ["TF_FORCE_GPU_ALLOW_GROWTH"]='true'
+os.environ["CUDA_VISIBLE_DEVICES"]="0"
+
+
 import tensorflow as tf
 import utils
 from quantum_control.layers import QubitRotation, ConditionalDisplacement
 # from quantum_control.metrics import MinInfidelity
 from quantum_control.callbacks import PlotCallback, MinInfidelity
+from math import pi
 
 T = 5  # circuit depth
 N = 120 # oscillator truncation
 
 # use batch shape that starts with 1 to trick TF into thinking it's batch of 1
-batch_shape = [1,200]
+batch_shape = [1,500]
 
 # build the circuit as a Keras model
 ECDC = tf.keras.Sequential(name='ECDC')
@@ -27,7 +33,8 @@ Delta = 0.30
 ideal_stabilizers, ideal_paulis, states, displacement_amplitudes = \
     hf.GKP_code(True, N, Delta=Delta, tf_states=True)
 
-# specify how the gate acts on any basis of states. This is for S-gate
+
+### specify how the gate acts on any basis of states. This is for S gate
 gate_map = {'+X' : '+Y', 
             '-X' : '-Y'}
 
@@ -39,9 +46,89 @@ gate_map_extended = {
     '+Z' : '+Z',
     '-Z' : '-Z'} # this one also has a global phase of i
 
+phase = {'+X' : 1, 
+         '-X' : 1}
+
+
+# ###  specify how the gate acts on any basis of states. This is for S_dag gate
+# gate_map = {'+X' : '-Y', 
+#             '-X' : '+Y'}
+
+# gate_map_extended = {
+#     '+X' : '-Y', 
+#     '-X' : '+Y',
+#     '+Y' : '+X',
+#     '-Y' : '-X',
+#     '+Z' : '+Z',
+#     '-Z' : '-Z'} # this one also has a global phase of -i
+
+# phase = {'+X' : 1, 
+#           '-X' : 1}
+
+
+####  specify how the gate acts on any basis of states. This is for X-gate
+# gate_map = {'+Z' : '-Z', 
+#             '-Z' : '+Z'}
+
+# gate_map_extended = {
+#     '+Z' : '-Z',
+#     '-Z' : '+Z',
+#     '+Y' : '-Y', 
+#     '-Y' : '+Y', 
+#     '+X' : '+X', 
+#     '-X' : '-X'}
+
+# phase = {'+Z' : 1, 
+#          '-Z' : 1}
+
+
+####  specify how the gate acts on any basis of states. This is for Y-gate
+# gate_map = {'+Z' : '-Z', 
+#             '-Z' : '+Z'}
+
+# gate_map_extended = {
+#     '+Z' : '-Z',
+#     '-Z' : '+Z',
+#     '+Y' : '+Y', 
+#     '-Y' : '-Y', 
+#     '+X' : '-X', 
+#     '-X' : '+X'}
+
+# phase = {'+Z' : 1j, 
+#          '-Z' : -1j}
+
+
+### specify how the gate acts on any basis of states. This is for Z-gate
+# gate_map = {'+X' : '-X', 
+#             '-X' : '+X'}
+
+# gate_map_extended = {
+#     '+X' : '-X',
+#     '-X' : '+X',
+#     '+Y' : '-Y', 
+#     '-Y' : '+Y', 
+#     '+Z' : '+Z', 
+#     '-Z' : '-Z'}
+
+# phase = {'+X' : 1, 
+#          '-X' : 1}
+
+
+# # specify how the gate acts on any basis of states. This is for T-gate
+# gate_map = {'+Z' : '+Z', 
+#             '-Z' : '-Z'}
+
+# phase = tf.cast(tf.math.exp(1j*pi/4), tf.complex64)
+
+# inputs = tf.stack([states['+X'], states['-X']])
+# targets = tf.stack([
+#     utils.normalize(states['+Z'] + phase*states['-Z'])[0],
+#     utils.normalize(states['+Z'] - phase*states['-Z'])[0]])
+    
+
 # define input and output states
 inputs = tf.stack([states[i] for (i,f) in gate_map.items()])
-targets =  tf.stack([states[f] for (i,f) in gate_map.items()])
+targets =  tf.stack([states[f]*phase[i] for (i,f) in gate_map.items()])
 
 # define the loss function and optimizer
 def loss(state, target):
