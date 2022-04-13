@@ -27,11 +27,20 @@ for i in range(T):
     ECDC.add(QubitRotation(N, batch_shape))
     ECDC.add(ConditionalDisplacement(N, batch_shape, echo_pulse=echo_pulse))
 
-# create GKP code words with Delta=0.35
-import helper_functions as hf
-Delta = 0.30
-ideal_stabilizers, ideal_paulis, states, displacement_amplitudes = \
-    hf.GKP_code(True, N, Delta=Delta, tf_states=True)
+if 1: # GKP encoding
+    import helper_functions as hf
+    Delta = 0.25
+    ideal_stabilizers, ideal_paulis, states, displacement_amplitudes = \
+        hf.GKP_code(True, N, Delta=Delta, tf_states=True)
+
+if 0: # Fock encoding
+    states = {'+Z' : utils.Kronecker_product([utils.basis(0,2), utils.basis(0,N)]),
+              '-Z' : utils.Kronecker_product([utils.basis(0,2), utils.basis(1,N)])}
+    
+    states['+X'] = utils.normalize(states['+Z'] + states['-Z'])[0]
+    states['-X'] = utils.normalize(states['+Z'] - states['-Z'])[0]
+    states['+Y'] = utils.normalize(states['+Z'] + 1j*states['-Z'])[0]
+    states['-Y'] = utils.normalize(states['+Z'] - 1j*states['-Z'])[0]
 
 
 ### specify how the gate acts on any basis of states. This is for S gate
