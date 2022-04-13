@@ -140,12 +140,12 @@ def GKP_code(tensorstate, N, Delta, S=np.array([[1, 0], [0, 1]]), tf_states=True
     ideal_paulis = {'X' : x, 'Y' : y, 'Z' : z}
 
     displacement_amplitudes = {
-        'S_z': 2*sqrt(pi)*(-S[1,0]+1j*S[0,0]),
-        'Z'  : sqrt(pi)*(-S[1,0]+1j*S[0,0]),
-        'S_x': 2*sqrt(pi)*(S[1,1]-1j*S[0,1]),
-        'X'  : sqrt(pi)*(S[1,1]-1j*S[0,1]),
-        'S_y': 2*sqrt(pi)*((S[1,1]-S[1,0])+1j*(S[0,0]-S[0,1])),
-        'Y'  : sqrt(pi)*((S[1,1]-S[1,0])+1j*(S[0,0]-S[0,1]))
+        'S_z': sqrt(2*pi)*(-S[1,0]+1j*S[0,0]),
+        'Z'  : sqrt(pi/2)*(-S[1,0]+1j*S[0,0]),
+        'S_x': sqrt(2*pi)*(S[1,1]-1j*S[0,1]),
+        'X'  : sqrt(pi/2)*(S[1,1]-1j*S[0,1]),
+        'S_y': sqrt(2*pi)*((S[1,1]-S[1,0])+1j*(S[0,0]-S[0,1])),
+        'Y'  : sqrt(pi/2)*((S[1,1]-S[1,0])+1j*(S[0,0]-S[0,1]))
         }
     
     # Define Hermitian Paulis and stablizers
