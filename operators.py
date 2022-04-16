@@ -381,3 +381,19 @@ class SNAP(ParametrizedOperator):
         theta -= self.phase_offset
         exp_diag = tf.math.exp(1j * theta)
         return tf.linalg.diag(exp_diag)
+
+
+class EnvelopeGKP(ParametrizedOperator):
+    """ Finite-energy GKP envelope operator in photon number basis."""
+
+    def compute(self, Delta):
+        """Calculates E(Delta) = e^{-Delta**2*n} for a batch of envelopes.
+        Args:
+            Delta (Tensor([B1, ..., Bb], c64)): A batch of envelopes
+        Returns:
+            Tensor([B1, ..., Bb, N, N], c64): A batch of E(Delta)
+        """
+        Delta = tf.squeeze(Delta)
+        Delta = tf.cast(tf.expand_dims(Delta, -1), dtype=c64)
+        exp_diag = tf.math.exp(-Delta**2 * tf.cast(tf.range(self.N), c64))
+        return tf.linalg.diag(exp_diag)
