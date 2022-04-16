@@ -3,11 +3,12 @@
 Created on Tue Oct 12 13:33:51 2021
 """
 import tensorflow as tf
+from tensorflow import complex64 as c64
 from math import pi, sqrt
 
 import operators as ops
 from utils import tensor, measurement, normalize
-from quantum_trajectory_sim import QuantumTrajectorySim
+from mc_simulator.quantum_trajectory_sim import QuantumTrajectorySim
 
 class Simulator():
     """ Simulator of oscillator-qubit Hilbert space. """
@@ -25,6 +26,11 @@ class Simulator():
         self.T1_qb = 110e-6
         self.T2_qb = 100e-6
         self.T1_osc = 590e-6
+        self.t_read = 1.3e-6
+        self.t_phase_update = 700e-9
+        self.t_sbs_b = 400e-9
+        self.t_sbs_s = 200e-9
+        self.t_ecdc = 200e-9
         self.dt = 100e-9
         
         self.create_operators()
@@ -141,12 +147,14 @@ class Simulator():
         return state
 
 
-    def ecdc_sequence(self, state, beta, angle, phase):
+    def ecdc_sequence(self, state, beta, angle, phase, tau=None):
         """
             state (Tensor([B1, ..., Bb, 2N], c64)): batched quantum state 
             beta, angle, phase (Tensor([T,1], c64)): params of ECDC sequence
+            tau (Tensor([T,1], f32)): durations of the ECDC blocks in seconds
         """
         T = len(angle)
+        if tau == None: tau = [self.t_ecdc]*T
         
         for t in range(T):
             # qubit rotation
@@ -158,7 +166,7 @@ class Simulator():
             CD = self.ctrl(D, tf.linalg.adjoint(D))
             
             state = tf.linalg.matvec(CD, state)
-            state = self.simulate_quantum_jumps(state, 100e-9)
+            state = self.simulate_quantum_jumps(state, tau[t])
             state = tf.linalg.matvec(CD, state)
             
             if t < T-1:
@@ -168,6 +176,25 @@ class Simulator():
     
         return state
     
+    def sbs(self, state, eps, quad):
+        """
+            state (Tensor([B1, ..., Bb, 2N], c64)): batched quantum state 
+            eps (float): trim amplitude
+            quad (str): quadrature for this round, either 'x' or 'p'
+        """
+        beta  = tf.cast([eps*1j, sqrt(2*pi)+0j, eps*1j, 0j], c64)
+        beta *= (1 if quad == 'x' else 1j)
+        angle = tf.cast([pi/2, -pi/2, pi/2, pi/2], c64)
+        phase = tf.cast([pi/2, 0, 0, -pi/2], c64)
+        tau = tf.cast([self.t_sbs_s, self.t_sbs_b, self.t_sbs_s, 0], tf.float32)
+
+        state = self.ecdc_sequence(state, beta, angle, phase, tau)
+        state, m = measurement(state, self.P, sample=True)
+        state = self.simulate_quantum_jumps(state, self.t_read)
+        state = tf.where(m==1, state, tf.linalg.matvec(self.sx, state))
+        state = self.simulate_quantum_jumps(state, self.t_phase_update)
+        return state
+        
 
     def ideal_phase_estimation(self, state, beta, sample=False):
         """
