@@ -256,7 +256,7 @@ class RotationOperator(ParametrizedOperator):
     """ Rotation in phase space."""
 
     def compute(self, phase):
-        """Calculates R(phase) = e^{i*phase*n} for a batch of phases.
+        """Calculates R(phase) = e^{-i*phase*n} for a batch of phases.
         Args:
             phase (Tensor([B1, ..., Bb], c64)): A batch of phases
         Returns:
@@ -264,7 +264,7 @@ class RotationOperator(ParametrizedOperator):
         """
         phase = tf.squeeze(phase)
         phase = tf.cast(tf.expand_dims(phase, -1), dtype=c64)
-        exp_diag = tf.math.exp(1j * phase * tf.cast(tf.range(self.N), c64))
+        exp_diag = tf.math.exp(-1j * phase * tf.cast(tf.range(self.N), c64))
         return tf.linalg.diag(exp_diag)
 
 

@@ -64,7 +64,7 @@ def plot_phase_space(state, tensorstate, phase_space_rep='wigner',
         W = 1/pi * tf.linalg.trace(matmul(displaced_parity, dm))
         W_grid = tf.reshape(W, grid.shape)
     
-        fig, ax = plt.subplots(1,1)
+        fig, ax = plt.subplots(1,1, dpi=200)
         fig.suptitle(title)
         ax.pcolormesh(x, y, np.transpose(W_grid.numpy().real), 
                       cmap='RdBu_r', vmin=-1/pi, vmax=1/pi)
@@ -75,7 +75,7 @@ def plot_phase_space(state, tensorstate, phase_space_rep='wigner',
         C = tf.linalg.trace(matmul(D(grid_flat), dm))
         C_grid = tf.reshape(C, grid.shape)
         
-        fig, axes = plt.subplots(1,2, sharey=True)
+        fig, axes = plt.subplots(1,2, sharey=True, dpi=200)
         fig.suptitle(title)
         axes[0].pcolormesh(x, y, np.transpose(C_grid.numpy().real), 
                            cmap='RdBu_r', vmin=-1, vmax=1)
