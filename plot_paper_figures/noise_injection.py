@@ -14,7 +14,7 @@ from scipy.optimize import curve_fit
 def linear(x, a, b):
     return a+b*x
 
-SAVE_FIGURE = False
+SAVE_FIGURE = True
 LEGEND = False
 MARKERSIZE = 3
 

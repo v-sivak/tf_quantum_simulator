@@ -25,6 +25,7 @@ names = [
     ]
 
 SAVE_FIGURE = False
+SHOW_TICKS = False
 
 # Plot 2D Wigner
 fig, axes = plt.subplots(1, 5, sharey=True, sharex=True, figsize=(7, 2.4), dpi=600)
@@ -35,15 +36,23 @@ for j in range(5):
     # CF = (np.rot90(CF, 2) + CF)/2
 
     ax = axes.ravel()[j] 
-    if j == 2: ax.set_xlabel(r'${\rm Re}\,(\beta)\,/\,\sqrt{2\pi}$')
-    if j == 0: ax.set_ylabel(r'${\rm Im}\,(\beta)\,/\,\sqrt{2\pi}$')
     ax.set_aspect('equal')
     ax.text(-5.2, 4, names[j])
-    ax.set_xticks(np.arange(-2,3,1)*sqrt(2*pi))
-    ax.set_yticks(np.arange(-2,3,1)*sqrt(2*pi))
-    ax.set_xticklabels([r'$-2$', r'$-1$', r'$0$', r'$1$', r'$2$'])
-    ax.set_yticklabels([r'$-2$', r'$-1$', r'$0$', r'$1$', r'$2$'])
     
+    if SHOW_TICKS:
+        if j == 2: ax.set_xlabel(r'${\rm Re}\,(\beta)\,/\,\sqrt{2\pi}$')
+        if j == 0: ax.set_ylabel(r'${\rm Im}\,(\beta)\,/\,\sqrt{2\pi}$')
+
+        ax.set_xticks(np.arange(-2,3,1)*sqrt(2*pi))
+        ax.set_yticks(np.arange(-2,3,1)*sqrt(2*pi))
+        ax.set_xticklabels([r'$-2$', r'$-1$', r'$0$', r'$1$', r'$2$'])
+        ax.set_yticklabels([r'$-2$', r'$-1$', r'$0$', r'$1$', r'$2$'])
+    else:
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.set_xticklabels([])
+        ax.set_yticklabels([])
+        
     # plot_kwargs = dict(cmap='RdBu_r', vmin=-1, vmax=1)
     plot_kwargs = dict(cmap='seismic', vmin=-1, vmax=1)
     p = ax.pcolormesh(i, q, np.transpose(CF), **plot_kwargs)
@@ -61,6 +70,8 @@ for j in range(5):
 
 
 plt.tight_layout()
+
+fig.savefig(r'E:\VladGoogleDrive\Qulab\Talks\22_04_29_xxx\tomo.png', fmt='png')
 
 if SAVE_FIGURE:
     savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\CF_tomo_after_qec'
