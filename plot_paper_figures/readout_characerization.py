@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from math import sqrt, pi
 
-SAVE_FIGURE = False
+SAVE_FIGURE = True
 SAVE_T1_VS_NBAR = True
 
 data = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\readout_characterization\readout.npz')
@@ -37,8 +37,8 @@ for i, s in enumerate(['g', 'e', 'f']):
     p = ax.pcolormesh(xedges, yedges, np.log10(1+H.transpose()), 
                       cmap='Reds', rasterized=True, vmin=0, vmax=np.log10(max_val))
     
-    ax.plot([thresh0, thresh0], y_range, color=plt.get_cmap('Set2')(5))
-    ax.plot(x_range, [thresh1, thresh1], color=plt.get_cmap('Set2')(5))
+    ax.plot([thresh0, thresh0], y_range, color=plt.get_cmap('Set2')(0), linestyle='--')
+    ax.plot(x_range, [thresh1, thresh1], color=plt.get_cmap('Set2')(0), linestyle='--')
     
     ax.set_xticks(np.linspace(*x_range, 3))
     ax.set_yticks(np.linspace(*x_range, 3))
@@ -126,20 +126,16 @@ data = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\T1_vs_nbar\T1_vs_nbar_sweep.np
 T1, xs, ys = data['T1'], data['xs'], data['ys']
 hours = (ys-ys[0])*24
 
-fig, ax = plt.subplots(1,1, dpi=600, figsize=(1.7,3.75))
+
+fig, ax = plt.subplots(1,1, dpi=200, figsize=(1.7,3.75))
 ax.set_xlabel(r'$\sqrt{\overline{n}}$ (uncalibrated)')
 ax.set_ylabel('Time (hours)')
-p = ax.pcolormesh(T1, cmap='RdYlGn', vmin=0)
-
-ax.set_xticks([0,20,40])
-ax.set_xticklabels([0, 0.25, 0.5])
-
-hours_per_tick = hours[-1]/(len(hours)-1)
-max_hour = round(hours[-1])+1
-ax.set_yticks(np.arange(max_hour)/hours_per_tick)
-ax.set_yticklabels(np.arange(max_hour))
-
-plt.colorbar(p, orientation='horizontal', label=r'$T_1^{\, q}$ (us)')
+hours = (ys-ys[0])*24
+p = ax.pcolormesh(xs, hours, T1, cmap='RdYlGn', vmin=0)
+ax.set_xticks([0,0.2,0.4])
+ax.set_yticks(np.arange(0,max(hours),5))
+plt.colorbar(p, orientation='horizontal', label=r'$T_1^{\, q}$ (us)',
+             ticks=[0,50,100,150,200,250])
 plt.tight_layout()
 
 

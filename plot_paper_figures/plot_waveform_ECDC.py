@@ -11,7 +11,7 @@ import plot_config
 SAVE_FIGURE = True
 LEGEND = False
 
-filename = r'Z:\shared\tmp\for Vlad\from_vlad\plus_Z_2.npz'
+filename = r'Z:\shared\tmp\for Vlad\from_vlad\ECDC_pulse\plus_Z.npz'
 data = np.load(filename, allow_pickle=True)
 c_pulse, q_pulse = data['c_pulse'], data['q_pulse']
 time = np.arange(len(c_pulse))
@@ -22,11 +22,11 @@ colors = plt.get_cmap('Paired')
 
 # ax.grid(True)
 ax.set_ylabel('DAC amplitude')
-ax.plot(time, c_pulse.real, label='I', color=colors(1))
-ax.plot(time, c_pulse.imag, label='Q', color=colors(0))
-ax.set_xlabel('Time (ns)')
-ax.plot(time, q_pulse.real, label='I', color=colors(5))
-ax.plot(time, q_pulse.imag, label='Q', color=colors(4))
+ax.plot(time*1e-3, c_pulse.real, label='I', color=colors(1))
+ax.plot(time*1e-3, c_pulse.imag, label='Q', color=colors(0))
+ax.set_xlabel('Time (us)')
+ax.plot(time*1e-3, q_pulse.real, label='I', color=colors(5))
+ax.plot(time*1e-3, q_pulse.imag, label='Q', color=colors(4))
 
 if LEGEND: ax.legend()
 plt.tight_layout()
@@ -50,7 +50,7 @@ ax.view_init(20, -80)
 
 ax.set_ylim(-0.5,0.5)
 ax.set_zlim(-0.5,0.5)
-ax.set_xlim(0,2500)
+ax.set_xlim(-100,5600)
 
 ax.xaxis.pane.fill = False
 ax.yaxis.pane.fill = False
