@@ -10,12 +10,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 from math import sqrt, pi
 
+datadir = r'E:\data\paper_data\readout'
+
 SAVE_FIGURE = True
 SAVE_T1_VS_NBAR = True
 
-data = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\readout_characterization\readout.npz')
+data = np.load(os.path.join(datadir, 'readout.npz'))
 thresh0 = data['thresh0']
 thresh1 = data['thresh1']
+
+
 
 ### FIGURE 1: READOUT HISTOGRAMS
 
@@ -26,8 +30,8 @@ for i, s in enumerate(['g', 'e', 'f']):
     x = data[s].real
     y = data[s].imag
     
-    x_range = [-0.03,0.03]
-    y_range = [-0.03,0.03]
+    x_range = [-0.024,0.024]
+    y_range = [-0.024,0.024]
     
     H, xedges, yedges = np.histogram2d(x, y, bins=[101,101], range=[x_range,y_range])    
     max_val = max([max_val, np.max(H)])
@@ -122,7 +126,7 @@ if SAVE_FIGURE:
 
 
 ### FIGURE 3: T1 VS NBAR
-data = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\T1_vs_nbar\T1_vs_nbar_sweep.npz')
+data = np.load(os.path.join(datadir, 'T1_vs_nbar_sweep.npz'))
 T1, xs, ys = data['T1'], data['xs'], data['ys']
 hours = (ys-ys[0])*24
 
@@ -134,7 +138,7 @@ hours = (ys-ys[0])*24
 p = ax.pcolormesh(xs, hours, T1, cmap='RdYlGn', vmin=0)
 ax.set_xticks([0,0.2,0.4])
 ax.set_yticks(np.arange(0,max(hours),5))
-plt.colorbar(p, orientation='horizontal', label=r'$T_1^{\, q}$ (us)',
+plt.colorbar(p, orientation='horizontal', label=r'$T_1^{\, q}\,\rm (\mu s)$',
              ticks=[0,50,100,150,200,250])
 plt.tight_layout()
 

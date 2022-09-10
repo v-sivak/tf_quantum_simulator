@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Mar 21 14:43:04 2022
-
-@author: qulab
 """
 import numpy as np
 import matplotlib.pyplot as plt
 import plot_config
 from scipy.optimize import curve_fit
+import os
+
+datadir = r'E:\data\paper_data\primitive_pulses'
 
 SAVE_FIGURE = True
 LEGEND = False
@@ -17,7 +18,7 @@ fig, axes = plt.subplots(1, 3, dpi=600, figsize=(7,2.05))
 color = plt.get_cmap('tab10')(3)
 
 # RABI
-cal_data = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\primitive_pulses\Rabi.npz')
+cal_data = np.load(os.path.join(datadir, 'Rabi.npz'))
 amps, data = cal_data['amps'], cal_data['data']
 
 ax = axes[0]
@@ -33,7 +34,7 @@ ax.plot(amps, func(amps, *popt), color='black')
 
 
 # DISPLACEMENT
-cal_data = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\primitive_pulses\displacement.npz')
+cal_data = np.load(os.path.join(datadir, 'displacement.npz'))
 amps, data = cal_data['amps'], cal_data['data']
 
 ax = axes[1]
@@ -50,7 +51,7 @@ ax.plot(amps, func(amps, *popt), color='black')
 
 
 # WIGNER
-cal_data = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\primitive_pulses\wigner.npz')
+cal_data = np.load(os.path.join(datadir, 'wigner.npz'))
 amps, data = cal_data['amps'], cal_data['data']
 
 ax = axes[2]

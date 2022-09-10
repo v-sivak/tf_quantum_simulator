@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Mar 21 14:43:04 2022
-
-@author: qulab
 """
 import numpy as np
 import matplotlib.pyplot as plt
 import plot_config
 from scipy.optimize import curve_fit
+import os
+
+datadir = r'E:\data\paper_data\cavity_cooling'
 
 SAVE_FIGURE = False
 
@@ -20,8 +21,8 @@ ax.set_xlabel(r'Rounds')
 ax.set_xscale('log')
 ax.set_ylim(0.25,0.95)
 
-for fname in [r'Z:\shared\tmp\for Vlad\from_vlad\cavity_cooling\ECDC_cooling_1.npz',
-              r'Z:\shared\tmp\for Vlad\from_vlad\cavity_cooling\ECDC_cooling_2.npz']:
+for fname in [os.path.join(datadir, 'dissipative_cooling_1.npz'),
+              os.path.join(datadir, 'dissipative_cooling_2.npz')]:
     data = dict(np.load(fname))
     rounds = data.pop('rounds')
     m00 = float(data.pop('m00'))

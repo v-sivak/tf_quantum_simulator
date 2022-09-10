@@ -13,12 +13,14 @@ from scipy.optimize import curve_fit
 import matplotlib as mpl
 import matplotlib.gridspec as gridspec
 
+datadir = r'E:\data\paper_data\hamiltonian_calibration'
 
-SAVE_FIGURE = False
+
+SAVE_FIGURE = True
 
 
 ### 1st PANEL: Qubit spectroscopy with oscillator in vacuum
-data = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\Hamiltonian_calibration\qubit_spec_0.npz')
+data = np.load(os.path.join(datadir, 'qubit_spec_0.npz'))
 freq, data = data['freq'], data['data']
 
 # fig, axes = plt.subplots(1,3, figsize=(7,2.5), dpi=600)
@@ -41,7 +43,7 @@ ax.plot(freq, data, marker='.', linestyle='none', color=color, zorder=10, label=
 
 
 ### 1st PANEL: Number-resolved spectroscopy with oscillator in coherent state
-data = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\Hamiltonian_calibration\qubit_spec_1.npz')
+data = np.load(os.path.join(datadir, 'qubit_spec_1.npz'))
 freq, data = data['freq'], data['data']
 
 color = plt.get_cmap('Paired')(4)
@@ -61,7 +63,7 @@ ax.set_xlabel(r'Mean photon number, $\overline{n}$')
 ax.set_ylabel(r'Rotation frequency (kHz)')
 
 
-data = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\out_and_back\out_and_back_2022_07_28.npz')
+data = np.load(os.path.join(datadir, 'out_and_back_2022_07_28.npz'))
 
 qubit_states = ['g', 'e']
 phase = {'e' : data['phase_e'], 'g' : data['phase_g']}
@@ -110,7 +112,7 @@ popt, pcov = curve_fit(avg_freq_fit_func, nbar[:fit_pts], avg_freq[:fit_pts])
 Kerr, Delta = popt
 
 
-ax.set_ylabel(r'$(f_g+f_e)/2$ (kHz)')
+ax.set_ylabel(r'Average freq. (kHz)')
 ax.plot(nbar, avg_freq*1e-3, marker='.',linestyle='none', color=plt.get_cmap('Paired')(5))
 ax.plot(nbar[:fit_pts], avg_freq_fit_func(nbar[:fit_pts], *popt)*1e-3,
         # label=r'K=%.0f Hz, $\Delta$= %.1f kHz' %(Kerr,Delta*1e-3))
@@ -132,7 +134,7 @@ chi, chi_prime = popt
 
 
 ax.set_xlabel(r'Average photon number, $\overline{n}$')
-ax.set_ylabel(r'$f_g-f_e$ (kHz)')
+ax.set_ylabel(r'Relative freq. (kHz)')
 ax.plot(nbar, diff_freq*1e-3, marker='.',linestyle='none', color=plt.get_cmap('Paired')(5))
 ax.plot(nbar[:fit_pts], diff_freq_fit_func(nbar[:fit_pts], *popt)*1e-3,
         # label='chi=%.0f kHz, chi_prime= %.0f Hz' %(chi*1e-3,chi_prime))

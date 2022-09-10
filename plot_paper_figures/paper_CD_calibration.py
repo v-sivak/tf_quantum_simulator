@@ -6,13 +6,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 import plot_config
 from scipy.optimize import curve_fit
+import os
+
+datadir = r'E:\data\paper_data\CD_calibration'
 
 SAVE_FIGURE = False
 LEGEND = False
 
 
 ### FIGURE 1: AMPLITUDE CALIBRATION
-cal_data = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\CD_calibration\CD_amp_cal.npz')
+cal_data = np.load(os.path.join(datadir, 'CD_amp_cal.npz'))
 alphas, betas, data = cal_data['alphas'], cal_data['betas'], cal_data['data']
 optimal_amps = cal_data['optimal_amps']
 
@@ -54,7 +57,7 @@ ax.plot(betas_new, quadratic(betas_new, a, b, c), color='black')
 plt.tight_layout()
 
 
-cal_data = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\CD_calibration\CD_cal_empirical_fit.npz')
+cal_data = np.load(os.path.join(datadir, 'CD_cal_empirical_fit.npz'))
 xdata, ydata, popt, alpha_max = cal_data['xdata'], cal_data['ydata'], cal_data['popt'], cal_data['alpha_max']
 
 
@@ -112,7 +115,7 @@ if SAVE_FIGURE: fig.savefig(savename)
 SAVE_FIGURE = False
 LEGEND = False
 
-data = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\CF_tomo\sqr_+Z_purity.npz')
+data = np.load(os.path.join(datadir, '+Z_purity_cal.npz'))
 
 
 sigma_x = data['sigma_x']

@@ -10,14 +10,14 @@ from math import sqrt, pi
 
 ### LOAD DATA
 round_time_us = 4.924
-times_us = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\lifetimes_2\times_us.npz')
-state = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\lifetimes_2\state.npz')
-fit_params = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\lifetimes_2\fit_params.npz')
-fit_stdev = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\lifetimes_2\fit_stdev.npz')
+times_us = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\lifetimes\times_us_3.npz')
+state = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\lifetimes\state_3.npz')
+fit_params = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\lifetimes\fit_params_3.npz')
+fit_stdev = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\lifetimes\fit_stdev_3.npz')
 
 USE_LEGEND = False
-SAVE_FIGURE = True
-SAVE_GAIN_FIGURE = True
+SAVE_FIGURE = False
+SAVE_GAIN_FIGURE = False
 
 ### DEFINE FIT FUNCTIONS
 def exp_decay(t, a, b, c):
@@ -45,9 +45,10 @@ color = {'transmon_T1' : plt.get_cmap('tab20b')(17),
 
 
 ### PLOT LIFETIMES
-fig, axes = plt.subplots(3, 1, sharex=True, dpi=600, figsize=(3.5,2.5)) # (3.1,2.5)
+fig, axes = plt.subplots(3, 1, sharex=True, dpi=600, figsize=(3.375,2.6)) # (3.1,2.5)
 # array of times to plot the fit
-fit_times = {bit : np.linspace(times_us[bit][0], times_us[bit][-1], 301) for bit in times_us.keys()}
+fit_times = {bit : np.linspace(times_us[bit][0], times_us[bit][-1], 301) 
+             for bit in times_us.keys()}
 
 
 ### PLOT TRANSMON
@@ -109,24 +110,49 @@ for i, bit in enumerate(['gkp_Z', 'gkp_Y']):
     # plot fit for +Pauli state
     ax.plot(fit_times[bit]*1e-3, exp_decay_to_zero(fit_times[bit], *fit_params[bit]), zorder=0, 
             marker='None', color=color[bit], linewidth=0.75)
-
+    
     # plot fit for -Pauli state
     ax.plot(fit_times[bit]*1e-3, 1-exp_decay_to_zero(fit_times[bit], *fit_params[bit]), zorder=0, 
             marker='None', color=color[bit], linewidth=0.75, linestyle='--')
-
-    # plot +Pauli state points
-    ind = np.where(gkp_rounds % 4 == 0)
-    ax.plot(times_us[bit][ind]*1e-3, state[bit][ind], marker='.', 
-            linestyle='none', color=color[bit], markersize=3.5,
-            label=r'$T_'+s+r'$=%.0f $\pm$ %.0f' %(fit_params[bit][1], fit_stdev[bit][1]))
     
-    # plot -Pauli state points
-    ind = np.where(gkp_rounds % 4 == 2)
-    ax.plot(times_us[bit][ind]*1e-3, 1-state[bit][ind], marker='.', 
-            linestyle='none', color=color[bit], markersize=3.5,
-            label=r'$T_'+s+r'$=%.0f $\pm$ %.0f' %(fit_params[bit][1], fit_stdev[bit][1]))
+    if bit in ['gkp_Z', 'gkp_X']:
+        # plot +Pauli state points
+        ind = np.where(gkp_rounds % 4 == 0)
+        ax.plot(times_us[bit][ind]*1e-3, state[bit][ind], marker='.', 
+                linestyle='none', color=color[bit], markersize=3.5,
+                label=r'$T_'+s+r'$=%.0f $\pm$ %.0f' %(fit_params[bit][1], fit_stdev[bit][1]))
+        
+        # plot -Pauli state points
+        ind = np.where(gkp_rounds % 4 == 2)
+        ax.plot(times_us[bit][ind]*1e-3, 1-state[bit][ind], marker='.', 
+                linestyle='none', color=color[bit], markersize=3.5,
+                label=r'$T_'+s+r'$=%.0f $\pm$ %.0f' %(fit_params[bit][1], fit_stdev[bit][1]))
+    
+    elif bit == 'gkp_Y':
+        # plot all points, Y eigenstates don't flip after even number of rounds
+        ax.plot(times_us[bit]*1e-3, state[bit], marker='.', 
+                linestyle='none', color=color[bit], markersize=3.5,
+                label=r'$T_'+s+r'$=%.0f $\pm$ %.0f' %(fit_params[bit][1], fit_stdev[bit][1]))
 
+        
 bit = 'gkp_X'; print(bit + r' = %.0f +- %.0f' %(fit_params[bit][1], fit_stdev[bit][1]))
+
+
+### EXTRACT LOGICAL PAULI ERROR PER ROUND
+p_XY = 0.5 * round_time_us/fit_params['gkp_Z'][1]
+p_YZ = 0.5 * round_time_us/fit_params['gkp_X'][1]
+p_ZX = 0.5 * round_time_us/fit_params['gkp_Y'][1]
+
+p_X = (p_ZX + p_XY - p_YZ) / 2
+p_Y = (p_XY + p_YZ - p_ZX) / 2
+p_Z = (p_ZX + p_YZ - p_XY) / 2
+
+# quadrature error sum
+delta2 = 0
+for bit in ['gkp_Z', 'gkp_Y', 'gkp_X']:
+    delta2 += (round_time_us*fit_stdev[bit][1]/4/fit_params[bit][1]**2)**2
+delta_p = np.sqrt(delta2)
+
 
 ### PLOT GKP (without QEC)
 for i, bit in enumerate(['gkp_Z_off', 'gkp_Y_off']):
@@ -148,26 +174,51 @@ plt.tight_layout()
 
 # Save figure
 if SAVE_FIGURE:
-    savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\fig3_lifetimes_and_stability'
-    savename = 'Lifetimes_3'
+    savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\fig3_lifetimes'
+    savename = 'Lifetimes'
     fig.savefig(os.path.join(savedir, savename), fmt='pdf')
 
 
 #------------------------------------------------------------------------------
 
 
-### Calculate QEC Gain
-gamma_gkp  = 1/3.0 * sum([1/fit_params[s][1] for s in ['gkp_X', 'gkp_Y', 'gkp_Z']])
+### CALCULATE QEC GAIN
+gamma_gkp  = 1/3 * sum([1/fit_params[s][1] for s in ['gkp_X', 'gkp_Y', 'gkp_Z']])
 delta_gamma_gkp = 1/3.0 * np.sqrt(sum([(fit_stdev[s][1]/fit_params[s][1]**2)**2 for s in ['gkp_X', 'gkp_Y', 'gkp_Z']]))
 
-gamma_fock = 1/3.0 * sum([1/fit_params[s][1] for s in ['fock_T1', 'fock_T2', 'fock_T2']])
-delta_gamma_fock = 1/3.0 * np.sqrt(sum([(fit_stdev[s][1]/fit_params[s][1]**2)**2 for s in ['fock_T1', 'fock_T2', 'fock_T2', 'fock_T2', 'fock_T2']]))
+gamma_fock = 1/3 * sum([1/fit_params[s][1] for s in ['fock_T1', 'fock_T2', 'fock_T2']])
+delta_gamma_fock = 1/3.0 * np.sqrt(sum([(fit_stdev[s][1]/fit_params[s][1]**2)**2 for s in ['fock_T1', 'fock_T1', 'fock_T2', 'fock_T2', 'fock_T2']]))
+
+gamma_tmon = 1/3 * sum([1/fit_params[s][1] for s in ['transmon_T1', 'transmon_T2E', 'transmon_T2E']])
+delta_gamma_tmon = 1/3 * np.sqrt(sum([(fit_stdev[s][1]/fit_params[s][1]**2)**2 for s in ['transmon_T1', 'transmon_T1', 'transmon_T2E', 'transmon_T2E', 'transmon_T2E']]))
+
 
 gain = gamma_fock / gamma_gkp
 delta_gain = gain * np.sqrt((delta_gamma_gkp/gamma_gkp)**2+(delta_gamma_fock/gamma_fock)**2)
 
 print('QEC Gain: %.2f +- %.2f' %(gain, delta_gain))
 
+
+### BAR PLOT OF CHANNEL FIDELITY LIFETIME
+fig, ax = plt.subplots(1,1, dpi=600, figsize=(1.38,0.89))
+ax.bar([0,1,2], [1e-3/gamma_tmon, 1e-3/gamma_fock, 1e-3/gamma_gkp],
+       color='grey')
+
+delta_T_gkp = delta_gamma_gkp / gamma_gkp**2
+delta_T_fock = delta_gamma_fock / gamma_fock**2
+delta_T_tmon = delta_gamma_tmon / gamma_tmon**2
+# ax.errorbar([0,1,2], [1e-3/gamma_tmon, 1e-3/gamma_fock, 1e-3/gamma_gkp], 
+#             yerr=[1e-3*delta_T_tmon, 1e-3*delta_T_fock, 1e-3*delta_T_gkp], 
+#             linestyle='none', color='black', capsize=10.0)
+ax.set_yticks([0,1,2])
+ax.set_xticks([])
+ax.set_ylim(0,2)
+plt.tight_layout()
+
+if SAVE_FIGURE:
+    savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\fig3_lifetimes'
+    savename = 'bar_plot'
+    fig.savefig(os.path.join(savedir, savename), fmt='pdf')
 
 
 ### PLOT EXPECTED PROCESS FIDELITY

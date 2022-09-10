@@ -1,12 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Aug  9 16:29:03 2022
-
-@author: qulab
-"""
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Sep 23 10:58:24 2021
 """
 import os
 import plot_config
@@ -15,12 +9,12 @@ import matplotlib.pyplot as plt
 from math import sqrt, pi
 from scipy.optimize import curve_fit
 
-
+datadir = r'E:\data\paper_data\measurement_outcomes'
 
 ### LOAD DATA
-data = dict(np.load(r'Z:\shared\tmp\for Vlad\from_vlad\measurement_statistics\measurements_2.npz'))
+data = dict(np.load(os.path.join(datadir, 'sample_for_analysis.npz')))
 
-SAVE_FIGURE = True
+SAVE_FIGURE = False
 
 # --------------------------------------------------------------------------
 # --------------------------------------------------------------------------
@@ -30,7 +24,7 @@ fig, axes = plt.subplots(1,3, dpi=600, figsize=(7,3))
 ax = axes[0]
 ax.set_xticks([0,10,20,30])
 ax.set_yticks([0,10,20,30])
-ax.set_ylabel('QEC cycle')
+ax.set_ylabel('Time (cycles)')
 r = np.corrcoef(data['g'].transpose())
 ax.set_aspect('equal')
 p = ax.pcolormesh(r[:30,:30], cmap='seismic', vmin=-1, vmax=1, rasterized=True)
@@ -38,7 +32,7 @@ p = ax.pcolormesh(r[:30,:30], cmap='seismic', vmin=-1, vmax=1, rasterized=True)
 ax = axes[1]
 ax.set_xticks([0,500,1000])
 ax.set_yticks([0,500,1000])
-ax.set_xlabel('QEC cycle')
+ax.set_xlabel('Time (cycles)')
 r = np.corrcoef(data['g'].transpose())
 ax.set_aspect('equal')
 p = ax.pcolormesh(r, cmap='seismic', vmin=-0.1, vmax=0.1, rasterized=True)
@@ -60,9 +54,6 @@ plt.tight_layout()
 if SAVE_FIGURE:
     savename = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\measurements_statistics\correlation'
     fig.savefig(savename, fmt='pdf')
-
-
-
 
 
 
@@ -108,11 +99,6 @@ plt.tight_layout()
 if SAVE_FIGURE:
     savename = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\measurements_statistics\corr_avg'
     fig.savefig(savename, fmt='pdf')
-
-
-
-
-
 
 
 Pi = (data['g']*np.roll(data['g'],1,axis=1)).mean(axis=0)

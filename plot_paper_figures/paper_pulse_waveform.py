@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Sep 23 14:50:42 2021
-
-@author: qulab
 """
 import numpy as np
 import matplotlib.pyplot as plt
 import plot_config
+import os
 
-SAVE_FIGURE = True
+SAVE_FIGURE = False
 LEGEND = False
 
-filename = r'Z:\shared\tmp\for Vlad\from_vlad\ECDC_pulse\plus_Z.npz'
+datadir = r'E:\data\paper_data\pulse_waveform'
+
+
+filename = os.path.join(datadir, 'plus_Z.npz')
 data = np.load(filename, allow_pickle=True)
 c_pulse, q_pulse = data['c_pulse'], data['q_pulse']
 time = np.arange(len(c_pulse))
@@ -37,11 +39,9 @@ if SAVE_FIGURE: fig.savefig(savename)
 
 
 
-
+# fancy 3D version of the plot in complex plane and time
 from mpl_toolkits import mplot3d
 fig = plt.figure(dpi=600, figsize=(7,3))
-# ax = fig.add_subplot(projection='3d') #box_aspect=(10,2,2)
-
 
 ax = mplot3d.axes3d.Axes3D(fig, xlabel='Time (ns)', ylabel='I', zlabel='Q')
 ax.set_zticks([-0.5, 0, 0.5])
