@@ -15,6 +15,8 @@ import tensorflow_constrained_optimization as tfco
 import matplotlib.pyplot as plt
 from gkp_exp_analysis import plot_config
 from scipy.optimize import curve_fit
+import helper_functions as hf
+from utils import density_matrix
     
 matmul = tf.linalg.matmul
 real = tf.math.real
@@ -32,8 +34,7 @@ whose coefficients are optimized.
 
 SAVE_FIGURE = False
 SAVE_DENSITY_MATRIX = False
-# dataname = r'Z:\shared\tmp\for Vlad\from_vlad\Wigner_tomo\-X_n0.npz'
-fname = r'+Z_n=0.npz'
+fname = r'+Z_n=400.npz'
 datadir = r'E:\data\paper_data\Wigner_tomography'
 dataname = os.path.join(datadir, fname)
 figsavedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\state_reconstruction'
@@ -256,6 +257,31 @@ nbar = real(trace(matmul(rho,ops.num(N))))
 print(f'Photon number {nbar}')
 
 # Eigenvalues
-eigvals, _ = tf.linalg.eigh(rho)
+eigvals, eigvecs = tf.linalg.eigh(rho)
 eigvals = tf.sort(real(eigvals), direction='DESCENDING')
 print(f'Eigenvalues {eigvals}')
+
+
+fig, ax = plt.subplots(1,1,dpi=600, figsize=(3,3))
+ax.set_ylabel('Eigenvalue')
+ax.set_xlabel('Index of eigenalue')
+# ax.set_ylim(1e-5,1)
+ax.plot(eigvals.numpy().real, marker='.')
+ax.set_yscale('log')
+
+
+# Plot wigner of projector onto 1st pair of eigenvalues
+state0 = tf.concat([eigvecs[:,-1], tf.zeros(140-eigvecs[0,:].shape[0], dtype=c64)], axis=0)
+state0 = tf.expand_dims(state0, 0)
+state1 = tf.concat([eigvecs[:,-2], tf.zeros(140-eigvecs[0,:].shape[0], dtype=c64)], axis=0)
+state1 = tf.expand_dims(state1, 0)
+hf.plot_phase_space(density_matrix(state0)+density_matrix(state1), 
+                    False, phase_space_rep='wigner', op=True)
+
+# Plot wigner of projector onto 2nd pair of eigenvalues
+state0 = tf.concat([eigvecs[:,-3], tf.zeros(140-eigvecs[0,:].shape[0], dtype=c64)], axis=0)
+state0 = tf.expand_dims(state0, 0)
+state1 = tf.concat([eigvecs[:,-4], tf.zeros(140-eigvecs[0,:].shape[0], dtype=c64)], axis=0)
+state1 = tf.expand_dims(state1, 0)
+hf.plot_phase_space(density_matrix(state0)+density_matrix(state1), 
+                    False, phase_space_rep='wigner', op=True)

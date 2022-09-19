@@ -8,7 +8,7 @@ import plot_config
 
 SAVE_FIGURE = True
 
-fig, ax = plt.subplots(1,1, dpi=600, figsize=(3.375, 2.6))
+fig, ax = plt.subplots(1,1, dpi=600, figsize=(3.1, 3.13))
 ax.grid()
 
 palette = plt.get_cmap('tab10')
@@ -30,7 +30,7 @@ y_pos = np.arange(len(components))
 times = [t for (c,t) in components]
 labels = [c for (c,t) in components]
 
-ax.barh(y_pos, times, color=plt.get_cmap('tab10')(0), align='center', zorder=10)
+ax.barh(y_pos, times, color='#219ebc', align='center', zorder=2)
 
 ax.set_yticks(y_pos)
 ax.set_yticklabels(labels)

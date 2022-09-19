@@ -10,10 +10,10 @@ from math import sqrt, pi
 
 ### LOAD DATA
 round_time_us = 4.924
-times_us = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\lifetimes\times_us_3.npz')
-state = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\lifetimes\state_3.npz')
-fit_params = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\lifetimes\fit_params_3.npz')
-fit_stdev = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\lifetimes\fit_stdev_3.npz')
+times_us = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\lifetimes\times_us_4.npz')
+state = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\lifetimes\state_4.npz')
+fit_params = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\lifetimes\fit_params_4.npz')
+fit_stdev = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\lifetimes\fit_stdev_4.npz')
 
 USE_LEGEND = False
 SAVE_FIGURE = False
@@ -33,19 +33,20 @@ def exp_decay_to_zero(t, a, b):
 ### DEFINE COLORS
 palette = plt.get_cmap('tab10')
 
-color = {'transmon_T1' : plt.get_cmap('tab20b')(17), 
-          'transmon_T2E' : plt.get_cmap('tab20b')(0), 
-          'fock_T1' : plt.get_cmap('Paired')(1), 
-          'fock_T2' : plt.get_cmap('Paired')(3),
-          'gkp_X' : plt.get_cmap('tab20c')(4), 
-          'gkp_Y' : plt.get_cmap('tab20')(6), 
-          'gkp_Z' : plt.get_cmap('tab20c')(5),
-          'gkp_Y_off' : plt.get_cmap('tab20')(6), 
-          'gkp_Z_off' : plt.get_cmap('tab20c')(5)}
-
+color = {'transmon_T1' : '#bc3908', #'#cc6900', #plt.get_cmap('tab20b')(17), 
+          'transmon_T2E' : '#4f772d', #plt.get_cmap('tab20b')(0), 
+          'fock_T1' : '#e63946', #'#8e6e53', #plt.get_cmap('Paired')(1), 
+          'fock_T2' : '#457b9d', #'#bc3908', #plt.get_cmap('Paired')(3),
+          'gkp_X' : '#f4a261', # plt.get_cmap('tab20c')(4)
+          'gkp_Y' : '#e76f51', #plt.get_cmap('tab20')(6), 
+          'gkp_Z' : '#2a9d8f', #plt.get_cmap('tab20c')(5),
+          'gkp_Y_off' : '#e76f51', #plt.get_cmap('tab20')(6), 
+          'gkp_Z_off' : '#2a9d8f' #plt.get_cmap('tab20c')(5)}
+          }
 
 ### PLOT LIFETIMES
-fig, axes = plt.subplots(3, 1, sharex=True, dpi=600, figsize=(3.375,2.6)) # (3.1,2.5)
+fig, axes = plt.subplots(3, 1, sharex=True, dpi=600, figsize=(3.375,3),
+                         gridspec_kw={'height_ratios':[1,1,1.5]}) # (3.1,2.5)
 # array of times to plot the fit
 fit_times = {bit : np.linspace(times_us[bit][0], times_us[bit][-1], 301) 
              for bit in times_us.keys()}
@@ -103,36 +104,29 @@ ax.set_yticks([0,0.5,1.0])
 ax.grid(True, lw=0.5)
 # ax.set_ylabel(r'Prob. of $|+Z\rangle$, $|+Y\rangle$')
 
-for i, bit in enumerate(['gkp_Z', 'gkp_Y']):
+for i, bit in enumerate(['gkp_Z', 'gkp_Y', 'gkp_X']):
     s = bit[-1]
     print(bit + r' = %.0f +- %.0f' %(fit_params[bit][1], fit_stdev[bit][1]))
     
-    # plot fit for +Pauli state
-    ax.plot(fit_times[bit]*1e-3, exp_decay_to_zero(fit_times[bit], *fit_params[bit]), zorder=0, 
-            marker='None', color=color[bit], linewidth=0.75)
-    
-    # plot fit for -Pauli state
-    ax.plot(fit_times[bit]*1e-3, 1-exp_decay_to_zero(fit_times[bit], *fit_params[bit]), zorder=0, 
-            marker='None', color=color[bit], linewidth=0.75, linestyle='--')
-    
-    if bit in ['gkp_Z', 'gkp_X']:
-        # plot +Pauli state points
-        ind = np.where(gkp_rounds % 4 == 0)
-        ax.plot(times_us[bit][ind]*1e-3, state[bit][ind], marker='.', 
-                linestyle='none', color=color[bit], markersize=3.5,
-                label=r'$T_'+s+r'$=%.0f $\pm$ %.0f' %(fit_params[bit][1], fit_stdev[bit][1]))
-        
+    if bit in ['gkp_X']:
         # plot -Pauli state points
-        ind = np.where(gkp_rounds % 4 == 2)
-        ax.plot(times_us[bit][ind]*1e-3, 1-state[bit][ind], marker='.', 
+        ax.plot(times_us[bit]*1e-3, 1-state[bit], marker='.', 
                 linestyle='none', color=color[bit], markersize=3.5,
                 label=r'$T_'+s+r'$=%.0f $\pm$ %.0f' %(fit_params[bit][1], fit_stdev[bit][1]))
-    
-    elif bit == 'gkp_Y':
+
+        # plot fit for +Pauli state
+        ax.plot(fit_times[bit]*1e-3, 1-exp_decay_to_zero(fit_times[bit], *fit_params[bit]), zorder=0, 
+                marker='None', color=color[bit], linewidth=0.75)
+        
+    if bit in ['gkp_Z', 'gkp_Y']:
         # plot all points, Y eigenstates don't flip after even number of rounds
         ax.plot(times_us[bit]*1e-3, state[bit], marker='.', 
                 linestyle='none', color=color[bit], markersize=3.5,
                 label=r'$T_'+s+r'$=%.0f $\pm$ %.0f' %(fit_params[bit][1], fit_stdev[bit][1]))
+
+        # plot fit for +Pauli state
+        ax.plot(fit_times[bit]*1e-3, exp_decay_to_zero(fit_times[bit], *fit_params[bit]), zorder=0, 
+                marker='None', color=color[bit], linewidth=0.75)
 
         
 bit = 'gkp_X'; print(bit + r' = %.0f +- %.0f' %(fit_params[bit][1], fit_stdev[bit][1]))
@@ -200,7 +194,7 @@ print('QEC Gain: %.2f +- %.2f' %(gain, delta_gain))
 
 
 ### BAR PLOT OF CHANNEL FIDELITY LIFETIME
-fig, ax = plt.subplots(1,1, dpi=600, figsize=(1.38,0.89))
+fig, ax = plt.subplots(1,1, dpi=600, figsize=(1.38,0.915))
 ax.bar([0,1,2], [1e-3/gamma_tmon, 1e-3/gamma_fock, 1e-3/gamma_gkp],
        color='grey')
 
@@ -237,7 +231,7 @@ def F_gkp(t):
     return 1/2 + 1/6*np.exp(-t/fit_params['gkp_X'][1]) + 1/6*np.exp(-t/fit_params['gkp_Y'][1]) + 1/6*np.exp(-t/fit_params['gkp_Z'][1])
 
 
-times = np.linspace(0,6000,301)
+times = np.linspace(0,5000,201)
 ax.plot(times*1e-3, F_transmon(times), label=r'Transmon $\{|g\rangle, |e\rangle\}$')
 ax.plot(times*1e-3, F_fock(times), label=r'Oscillator $\{|0\rangle, |1\rangle\}$')
 ax.plot(times*1e-3, F_gkp(times), label='Square GKP code')
@@ -249,3 +243,103 @@ if SAVE_GAIN_FIGURE:
     savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\channel_fidelity_and_gain'
     savename = 'channel_fidelity_vs_time'
     fig.savefig(os.path.join(savedir, savename), fmt='pdf')
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+from scipy.optimize import curve_fit
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+def exp1(t, T1, a0, a1):
+    return a0 + a1*np.exp(-t/T1)
+
+def exp2(t, T1, T2, a0, a1, a2):
+    return a0 + a1*np.exp(-t/T1) + a2*np.exp(-t/T2)
+
+
+def scale(a):
+    return (a-np.mean(a[-5:]))/(a-np.mean(a[-5:]))[0]
+
+
+fig, ax = plt.subplots(1,1, dpi=600)
+ax.set_yscale('log')
+ax.set_ylim(1e-2,1.2)
+
+line = '--'
+
+# ax.plot(times_us['fock_T1'], state['fock_T1'], linestyle='none', marker='.')
+
+ax.plot(times_us['fock_T1'], scale(state['fock_T1']), linestyle=line, marker='.')
+
+# ax.plot(times_us['fock_T2'], (state['fock_T2']/state['fock_T2'][0]), 
+#         linestyle=line, marker='.')
+
+ax.plot(times_us['transmon_T1'], scale(state['transmon_T1']), linestyle=line, marker='.')
+
+ax.plot(times_us['transmon_T2E'], scale(state['transmon_T2E']), linestyle=line, marker='.')
+
+# ax.plot(times_us['transmon_T2E'], (state['transmon_T2E']-np.mean(state['transmon_T2E'][-5:]))/state['transmon_T2E'][0], 
+#         linestyle=line, marker='.')
+
+# popt, pcov = curve_fit(exp1, times_us['fock_T1'], state['fock_T1'], p0=(500, 0, 1))
+# ax.plot(times_us['fock_T1'], exp1(times_us['fock_T1'], *popt))
+
+# popt, pcov = curve_fit(exp2, times_us['fock_T1'], state['fock_T1'], p0=(500, 1000, 0, 1, 0))
+# ax.plot(times_us['fock_T1'], exp2(times_us['fock_T1'], *popt))
+
+
+ax.plot(times_us['gkp_X'], scale(state['gkp_X']), linestyle=line, marker='.')
+ax.plot(times_us['gkp_Y'], scale(state['gkp_Y']), linestyle=line, marker='.')
+ax.plot(times_us['gkp_Z'], scale(state['gkp_Z']), linestyle=line, marker='.')
+
+ax.plot(times_us['fock_T2'], scale(state['fock_T2']), linestyle=line, marker='.')
+
+
+
+
+
+# times = times_us['transmon_T2E']
+# T = times_us['transmon_T2E'][1]-times_us['transmon_T2E'][0] # in [us]
+# D = state['transmon_T2E']
+
+# D = np.exp(-times/50)*np.cos(times/30)
+
+# s_re = np.linspace(0, 1/10, 201)
+# s_im = np.linspace(-1/10, 1/10, 51)
+# xs, ys = np.meshgrid(s_re, s_im, indexing='xy')
+# s_grid = xs + 1j*ys
+
+# z_grid = np.exp(s_grid*T)
+
+
+# def z_transform(z_grid, data):
+#     # z_grid is 2-dimensional, 
+#     # data   is 1-dimensional
+#     # output is 2-dimensional
+#     N = len(data)
+#     z_grid = np.stack([z_grid]*N)
+#     n = np.arange(N).reshape([N,1,1])
+#     data = data.reshape([N,1,1])
+#     return np.sum(data * z_grid ** (-n), axis=0)
+
+# Z = z_transform(z_grid, D)
+
+# fig, ax = plt.subplots(1,1)
+# ax.pcolormesh(s_re, s_im, np.abs(Z), cmap='Reds')
+
+

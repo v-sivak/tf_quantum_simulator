@@ -91,8 +91,16 @@ ax.set_xscale('log')
 for j in locations:
     r_avg = np.mean([r[i-j:i,i] for i in range(j,j+avg_window)], axis=0)
     ax.plot(1+np.arange(j), np.flip(r_avg), marker='.', markersize=3.5)
-
 ax.plot(np.zeros(800))
+
+# Fit logcal maxima to exponential decay to extract correlation length
+def exp(t, a, T):
+    return a * np.exp(-t/T)
+even_ind = np.where((1+np.arange(j)) % 2 == 0)[0]
+popt, pcov = curve_fit(exp, (1+np.arange(j))[even_ind], np.flip(r_avg)[even_ind])
+print('Correlation length %.1f cycles' %popt[-1])
+# ax.plot(1+np.arange(j), exp(1+np.arange(j), *popt), color='k', linestyle='--')
+
 
 plt.tight_layout()
 
@@ -105,6 +113,3 @@ Pi = (data['g']*np.roll(data['g'],1,axis=1)).mean(axis=0)
 Pi_prod = data['g'].mean(axis=0)**2
 print('Expectation of code projector: %.3f +- %.3f' %(Pi.mean(), Pi.std()))
 print('Projector from product: %.3f +- %.3f' %(Pi_prod.mean(), Pi_prod.std()))
-
-
-
