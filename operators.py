@@ -15,7 +15,6 @@ if LooseVersion(tf.__version__) >= "2.2":
     diag = tf.linalg.diag
 else:
     import numpy as np
-
     diag = np.diag  # k=1 option is broken in tf.linalg.diag in TF 2.1 (#35761)
 
 
@@ -33,10 +32,11 @@ def sigma_y():
 def sigma_z():
     return tf.constant([[1.0, 0.0], [0.0, -1.0]], dtype=c64)
 
-
 def sigma_m():
     return tf.constant([[0.0, 1.0], [0.0, 0.0]], dtype=c64)
 
+def sigma_p():
+    return tf.constant([[0.0, 0.0], [1.0, 0.0]], dtype=c64)
 
 def hadamard():
     return 1 / sqrt(2) * tf.constant([[1.0, 1.0], [1.0, -1.0]], dtype=c64)
@@ -172,7 +172,7 @@ class HamiltonianEvolutionOperator(ParametrizedOperator):
     def __init__(self, H, *args, **kwargs):
         """
         Args:
-            H (Tensor([N, N], c64)): Hamiltonian in Hz
+            H (Tensor([N, N], c64)): Hamiltonian in [Hz]
         """
         N = H.shape[-1]
         (self.eigvals, self.U) = tf.linalg.eigh(H)
@@ -183,7 +183,9 @@ class HamiltonianEvolutionOperator(ParametrizedOperator):
         Args:
             t: time in seconds
         """
-        t = tf.cast(t, c64)
+        # Reshape time for broadcast against diagonals
+        t = tf.cast(t, dtype=c64)
+
         exp_diag = tf.linalg.diag(tf.math.exp(-1j * 2 * pi * t * self.eigvals))
         return tf.cast(self.U @ exp_diag @ tf.linalg.adjoint(self.U), c64)
 
@@ -241,7 +243,8 @@ class TranslationOperator(ParametrizedOperator):
             dtype=c64,
         )
 
-
+# FIXME: There seems to be a very bad bug here. Compare:
+# ops.DisplacementOperator(100)(0.5+1.j) and qt.displace(100,0.5+1.j)
 class DisplacementOperator(TranslationOperator):
     """ 
     Displacement in phase space D(amplitude) = T(amplitude * sqrt(2)).

@@ -29,6 +29,25 @@ class QubitRotation(tf.keras.layers.Layer):
         return output_state
 
 
+class OscillatorDisplacement(tf.keras.layers.Layer):
+    def __init__(self, N, batch_shape, name='oscillator_displacement'):
+        super().__init__(name=name)
+        self.displace = ops.DisplacementOperator(N, tensor_with=[ops.identity(2), None])
+        self.batch_shape = batch_shape
+        
+    def build(self, input_shape):
+        self.alpha_re = self.add_weight(shape=self.batch_shape, trainable=True, 
+            name='alpha_re', initializer=initializers.RandomNormal(stddev=0.5))
+        self.alpha_im = self.add_weight(shape=self.batch_shape, trainable=True, 
+            name='alpha_im', initializer=initializers.RandomNormal(stddev=0.5))
+        
+    def call(self, input_state):
+        alpha_complex = tf.cast(self.alpha_re, c64) + 1j * tf.cast(self.alpha_im, c64)
+        D = self.displace(alpha_complex)
+        output_state = tf.linalg.matvec(D, input_state)
+        return output_state
+
+
 class ConditionalDisplacement(tf.keras.layers.Layer):
     def __init__(self, N, batch_shape, echo_pulse=True, name='conditional_displacement'):
         super().__init__(name=name)
