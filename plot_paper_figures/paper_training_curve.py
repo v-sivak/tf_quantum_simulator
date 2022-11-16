@@ -25,7 +25,7 @@ all_runs = {
     }
 
 SAVE_REWARD_FIGURE = False
-SAVE_ACTION_FIGURE = True
+SAVE_ACTION_FIGURE = False
 use_epoch = 660
 evaluation_interval = 20
 
@@ -101,17 +101,21 @@ returns_stochastic = np.mean(rewards[run]['training'][:,1], axis=(1,2))
 ax = axes[0]
 ax.plot(epochs[run]['training'], returns_stochastic, 
         label='stochastic', color=palette(3), linewidth=0.5)
-    
+
+# ax.plot(epochs[run]['evaluation'], returns_deterministic, 
+#         label='stochastic', color=palette(3), linewidth=0.5)
+
+# ax.plot(epochs[run]['evaluation'], np.ones(29)*returns_deterministic[0], 
+#         label='stochastic', color=palette(3), linewidth=0.5)  
 
 ax = axes[1]
 alpha = alphas[run]['training'].squeeze()[:,:,1]
 plot_action(alpha**2, ax, palette(0), run)
 
-
 plt.tight_layout()
 
 if SAVE_REWARD_FIGURE:
-    savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\fig2_qec_circuit_and_rl_training'
+    savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures_working\fig2_qec_circuit_and_rl_training'
     savename = 'learning_progress'
     fig.savefig(os.path.join(savedir, savename), fmt='pdf')
 
@@ -161,7 +165,7 @@ for run in [2]:
     plot_action(alpha, ax, palette(3), run)
 
     ax = axes[0,3]
-    ax.set_title(r'$\Delta \varphi_g$, $\Delta \varphi_e$ (deg)')
+    ax.set_title(r'$\Delta \vartheta_g$, $\Delta \vartheta_e$ (deg)')
     ax.set_ylim(-6,6)
     
     cav_phase = cavity_phases[run]['training'].squeeze()[:,:,0]/np.pi*180

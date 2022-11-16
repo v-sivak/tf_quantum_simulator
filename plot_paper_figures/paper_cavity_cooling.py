@@ -10,14 +10,14 @@ import os
 
 datadir = r'E:\data\paper_data\cavity_cooling'
 
-SAVE_FIGURE = False
+SAVE_FIGURE = True
 
 colors = plt.get_cmap('tab10')
 
 # cooling from GKP state
 fig, ax = plt.subplots(1, 1, dpi=600, figsize=(5, 2.8))
 ax.set_ylabel(r'Prob. of $|0\rangle$ (unnormalized)')
-ax.set_xlabel(r'Rounds')
+ax.set_xlabel(r'Time (cycles)')
 ax.set_xscale('log')
 ax.set_ylim(0.25,0.95)
 

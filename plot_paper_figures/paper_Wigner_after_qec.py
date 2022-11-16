@@ -27,11 +27,11 @@ rounds = np.array([0, 100, 200, 400, 800])
 round_time_us = 4.924
 contrast = 0.63
 
-SAVE_FIGURE = False
+SAVE_FIGURE = True
 
 
 # Plot 2D Wigner
-fig, axes = plt.subplots(4, 5, sharex=True, sharey='row', figsize=(7, 6), dpi=600)
+fig, axes = plt.subplots(4, 5, sharex=True, sharey='row', figsize=(7, 6.7), dpi=600)
 
 for j, n in enumerate(rounds):
     ### ----------------------------------------------------------------------
@@ -92,7 +92,7 @@ for j, n in enumerate(rounds):
     if j==0: ax.set_ylabel('Position prob. density')
     ax.plot(xs, W.sum(axis=1))
 
-    # 4th row: Momentum wavefunction    
+    # 4th row: Momentum wavefunction
     ax = axes[3, j]
     ax.set_yticks([0,5,10])
     if j==0: ax.set_ylabel('Momentum prob. density')
@@ -105,12 +105,16 @@ for j, n in enumerate(rounds):
 
 axes[0,0].set_ylabel(r'${\rm Im}[\alpha]\,/\,\sqrt{\pi\,/\,2}$')
 axes[1,0].set_ylabel(r'${\rm Im}[\alpha]\,/\,\sqrt{\pi\,/\,2}$')
-axes[3,2].set_xlabel(r'${\rm Re}[\alpha]\,/\,\sqrt{\pi\,/\,2}$')
+
+# axes[0,2].set_xlabel(r'${\rm Re}[\alpha]\,/\,\sqrt{\pi\,/\,2}$')
+# axes[1,2].set_xlabel(r'${\rm Re}[\alpha]\,/\,\sqrt{\pi\,/\,2}$')
+axes[2,2].set_xlabel(r'${\rm Re}[\alpha]\,/\,\sqrt{\pi\,/\,2}$')
+axes[3,2].set_xlabel(r'${\rm Im}[\alpha]\,/\,\sqrt{\pi\,/\,2}$')
 
 plt.tight_layout()
 
 if SAVE_FIGURE:
-    savename = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\wigner_tomo_after_qec\big'
+    savename = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures_working\wigner_tomo_after_qec\big'
     fig.savefig(savename, fmt='pdf')
 
 

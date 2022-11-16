@@ -2,12 +2,16 @@
 """
 Created on Mon Apr 26 11:01:42 2021
 """
+# append parent directory to path 
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
+
 import tensorflow as tf
 from tensorflow import complex64 as c64
 from tensorflow import float32 as f32
 from math import pi, sqrt
 import numpy as np
-import os
 import operators as ops
 # Use the GitHub version of TFCO
 # !pip install git+https://github.com/google-research/tensorflow_constrained_optimization
@@ -262,26 +266,26 @@ eigvals = tf.sort(real(eigvals), direction='DESCENDING')
 print(f'Eigenvalues {eigvals}')
 
 
-fig, ax = plt.subplots(1,1,dpi=600, figsize=(3,3))
-ax.set_ylabel('Eigenvalue')
-ax.set_xlabel('Index of eigenalue')
-# ax.set_ylim(1e-5,1)
-ax.plot(eigvals.numpy().real, marker='.')
-ax.set_yscale('log')
+# fig, ax = plt.subplots(1,1,dpi=600, figsize=(3,3))
+# ax.set_ylabel('Eigenvalue')
+# ax.set_xlabel('Index of eigenalue')
+# # ax.set_ylim(1e-5,1)
+# ax.plot(eigvals.numpy().real, marker='.')
+# ax.set_yscale('log')
 
 
-# Plot wigner of projector onto 1st pair of eigenvalues
-state0 = tf.concat([eigvecs[:,-1], tf.zeros(140-eigvecs[0,:].shape[0], dtype=c64)], axis=0)
-state0 = tf.expand_dims(state0, 0)
-state1 = tf.concat([eigvecs[:,-2], tf.zeros(140-eigvecs[0,:].shape[0], dtype=c64)], axis=0)
-state1 = tf.expand_dims(state1, 0)
-hf.plot_phase_space(density_matrix(state0)+density_matrix(state1), 
-                    False, phase_space_rep='wigner', op=True)
+# # Plot wigner of projector onto 1st pair of eigenvalues
+# state0 = tf.concat([eigvecs[:,-1], tf.zeros(140-eigvecs[0,:].shape[0], dtype=c64)], axis=0)
+# state0 = tf.expand_dims(state0, 0)
+# state1 = tf.concat([eigvecs[:,-2], tf.zeros(140-eigvecs[0,:].shape[0], dtype=c64)], axis=0)
+# state1 = tf.expand_dims(state1, 0)
+# hf.plot_phase_space(density_matrix(state0)+density_matrix(state1), 
+#                     False, phase_space_rep='wigner', op=True)
 
-# Plot wigner of projector onto 2nd pair of eigenvalues
-state0 = tf.concat([eigvecs[:,-3], tf.zeros(140-eigvecs[0,:].shape[0], dtype=c64)], axis=0)
-state0 = tf.expand_dims(state0, 0)
-state1 = tf.concat([eigvecs[:,-4], tf.zeros(140-eigvecs[0,:].shape[0], dtype=c64)], axis=0)
-state1 = tf.expand_dims(state1, 0)
-hf.plot_phase_space(density_matrix(state0)+density_matrix(state1), 
-                    False, phase_space_rep='wigner', op=True)
+# # Plot wigner of projector onto 2nd pair of eigenvalues
+# state0 = tf.concat([eigvecs[:,-3], tf.zeros(140-eigvecs[0,:].shape[0], dtype=c64)], axis=0)
+# state0 = tf.expand_dims(state0, 0)
+# state1 = tf.concat([eigvecs[:,-4], tf.zeros(140-eigvecs[0,:].shape[0], dtype=c64)], axis=0)
+# state1 = tf.expand_dims(state1, 0)
+# hf.plot_phase_space(density_matrix(state0)+density_matrix(state1), 
+#                     False, phase_space_rep='wigner', op=True)

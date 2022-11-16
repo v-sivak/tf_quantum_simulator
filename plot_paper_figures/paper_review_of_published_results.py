@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import plot_config_thesis
 
-SAVE_FIGURE = True
+SAVE_FIGURE = False
 
 # This experiment best results
 tc = 4.924 * 2
@@ -28,10 +28,11 @@ experiments = {
     'bin' : (2019, 216, 200, 17.9/2/200), # https://www.nature.com/articles/s41567-018-0414-3#Sec5
     r'GKP$_1$' : (2020, 370, 220, 4*2.53/2/370), # https://www.nature.com/articles/s41586-020-2603-3
     'T4C' : (2021, 440, 288, None), # https://www.nature.com/articles/s41586-021-03257-0 
-    r'GKP$_2$' : (2022.5, T_fock, T_gkp, pc),
+    r'GKP$_2$' : (2022.7, T_fock, T_gkp, pc),
     r'd3$_1$' : (2021.5, 76.9, 17.8, 0.030),  # ETH https://www.nature.com/articles/s41586-022-04566-8
     r'd3$_2$' : (2022, 12.9, 6.3, 0.223), # China https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.129.030501
-    r'd5' : (2022.5, 35.6, 15.3, 0.029), # Google http://arxiv.org/abs/2207.06431
+    r'd3$_3$' : (2022.3, 346.6, 25.2, 0.095),  # IBM https://arxiv.org/abs/2203.07205
+    r'd5' : (2022.6, 35.6, 15.3, 0.029), # Google http://arxiv.org/abs/2207.06431
     }
 
 
@@ -44,7 +45,7 @@ colors = plt.get_cmap('tab10')
 ax = axes[0]
 ax.set_xlabel('Year')
 ax.set_title(r'Logical and best physical lifetime ($\rm \mu s$)')
-ax.set_xlim(2015.5, 2023.5)
+ax.set_xlim(2015.5, 2023.7)
 ax.set_ylim(-50, 1900)
 ax.set_yticks([0,300,600,900,1200,1500,1800])
 # ax.grid(lw=0.5, axis='y')
@@ -87,7 +88,7 @@ plt.tight_layout()
 
 
 if SAVE_FIGURE:
-    savename = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\qec_literature_review\review'
+    savename = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures_working\qec_literature_review\review_1'
     fig.savefig(savename, fmt='.pdf')
     
     
@@ -180,3 +181,25 @@ print('Logical %.1f' %T_d3)
 print('G=%.2f'%(T_d3/T[ind]))
 print('avg error per cycle: %.3f' %p_error)
 
+
+### IBM distance-3 heavy hexagonal code
+T1 = [420.3, 354.8, 331.7, 124.8, 131.7, 424.5, 249.4, 271.7, 357.0, 283.8, 280.9, 
+      349.8, 399.3, 226.6, 259.8, 234.4, 195.5, 319.6, 278.1, 206.9, 278.3, 258.7, 364.1]
+
+T2 = [118.4, 119.8, 25.8, 77.3, 215.5, 59.7, 228.8, 316.0, 72.0, 188.8, 353.0, 
+      345.0, 99.7, 217.4, 209.2, 311.7, 34.7, 167.6, 308.0, 132.4, 145.0, 14.6, 327.5]
+
+T1 = np.array(T1); T2 = np.array(T2)
+
+print('--IBM d3--')
+T = 3/(2/T2+1/T1)
+ind = np.argmax(T)
+print('Physical %.1f' %T[ind])
+
+t_cycle = 5.3  # [us]
+p_error = (2*0.113+1*0.059)/3 # 0.113 for |+>, or 0.059 for |0>
+
+T_d3 = -1 / np.log(1-2*p_error) * t_cycle
+print('Logical %.1f' %T_d3)
+print('G=%.2f'%(T_d3/T[ind]))
+print('avg error per cycle: %.3f' %p_error)

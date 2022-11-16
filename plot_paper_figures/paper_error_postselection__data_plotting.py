@@ -16,8 +16,8 @@ def exp_decay(t, A, tau):
 def survival_prob(n, p):
     return p ** n
 
-def log_survival_prob(n, log_p):
-    return n * log_p
+def log_survival_prob(n, log_p, n0):
+    return (n-n0) * log_p
 
 
 SAVE_FIGURE = False
@@ -52,7 +52,7 @@ colors = {'+Z': plt.get_cmap('Blues'), '+Y': plt.get_cmap('Oranges')}
 # ----------------------------------------------------------------------------
 ### Plot main text figure
 # Post-selected decay of the logical Pauli eigenstates
-SAVE_FIGURE = True
+SAVE_FIGURE = False
 
 # Plot logical lifetimes
 fig, ax = plt.subplots(1,1, dpi=600, figsize=(2.2,2))
@@ -64,7 +64,7 @@ ax.set_ylabel(r'$\langle Z_L\rangle$, $\langle Y_L\rangle$, '+\
               'including SPAM error')
 ax.set_xlabel('Time (cycles)')
 
-ax.set_xlim(-5,155)
+ax.set_xlim(-5,170)
 
 for s in ['+Y', '+Z']:
     for i, label in enumerate(np.flip(labels)):    
@@ -79,8 +79,8 @@ for s in ['+Y', '+Z']:
                 linestyle='none', marker='.', color=color,
                 label=label+', '+s+', T=%.0f' % fit_params[label][s][1])
         # plot the fit lines
-        ax.plot(np.arange(150), 
-                exp_decay(np.arange(150), *fit_params[label][s]),
+        ax.plot(np.arange(165), 
+                exp_decay(np.arange(165), *fit_params[label][s]),
                 linestyle='-', color=color)
         
 plt.tight_layout()
@@ -116,9 +116,9 @@ for s in ['+Y']:
         ax.plot(rounds[label][s], survived_frac,
                 linestyle='none', marker='.', color=colors[s](1-i/10))
 
-        popt, pcov = curve_fit(log_survival_prob, rounds[label][s], 
-                                np.log(survived_frac), p0=0.9)
-        survival_probs.append(np.exp(popt))
+        popt, pcov = curve_fit(log_survival_prob, rounds[label][s][1:], 
+                                np.log(survived_frac)[1:], p0=(0.95,0))
+        survival_probs.append(np.exp(popt[0]))
         
         t_range = np.linspace(0,150,151)
         ax.plot(t_range, np.exp(log_survival_prob(t_range, *popt)),
@@ -147,9 +147,9 @@ ax2.set_yscale('log')
 ax.set_ylabel('Lifetime (cycles)')
 ax2.set_ylabel('Lifetime (ms)')
 
-t = 4.924
+round_time_us = 4.924
 ax.set_ylim(150, 4000)
-ax2.set_ylim(150*t*1e-3, 4000*t*1e-3)
+ax2.set_ylim(150*round_time_us*1e-3, 4000*round_time_us*1e-3)
 ax.set_yticks([200, 400, 800, 1600, 3200])
 ax.set_yticklabels([200, 400, 800, 1600, 3200])
 ax2.set_yticks([1, 2, 4, 8, 16])
@@ -202,16 +202,17 @@ rates = []
 for i, label in enumerate(labels[1:]):
     rate = 2/lifetimes['+Z'][i+1] + 1/lifetimes['+Y'][i+1]
     rates.append(rate_np/rate)
+    print(label + ' improvement factor %.2f, survival prob. %.5f' %(rate_np/rate, survival_probs[i+1]))
 
 ax.plot(np.flip(np.arange(1,5+1)), rates, color='#ef476f', marker='.')
 ax.plot(np.arange(1,5+1), np.ones(5), linestyle='--', color='k')
-
 
 plt.tight_layout()
 
 if SAVE_FIGURE:
     savename = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\postselection_of_errors\plot'
     fig.savefig(savename, fmt='.pdf')
+
 
 
 
@@ -232,8 +233,8 @@ ind = np.nonzero(np.in1d(rounds['include_leakage'][s], rounds[label][s]))[0]
 survived_frac = N_shots[label][s]/N_shots['include_leakage'][s].astype(float)[ind]
 ax.plot(rounds[label][s], survived_frac, linestyle='none', marker='.')
 
-popt, pcov = curve_fit(log_survival_prob, rounds[label][s], np.log(survived_frac), p0=0.9)
-print('Leakage probability per cycle %.4f' %np.exp(popt))
+popt, pcov = curve_fit(log_survival_prob, rounds[label][s], np.log(survived_frac), p0=(0.9,0))
+print('Leakage probability per cycle %.4f' %np.exp(popt[0]))
 
 t_range = np.linspace(0,150,151)
 ax.plot(t_range, np.exp(log_survival_prob(t_range, *popt)), linestyle='--')

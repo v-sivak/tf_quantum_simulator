@@ -2,6 +2,11 @@
 """
 Created on Mon Apr 26 11:01:42 2021
 """
+# append parent directory to path 
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
+
 import tensorflow as tf
 from tensorflow import complex64 as c64
 from math import pi, sqrt
@@ -9,7 +14,8 @@ import numpy as np
 import operators as ops
 import utils
 import matplotlib.pyplot as plt
-import os
+from plot_paper_figures import plot_config
+from utils import density_matrix
 
 from scipy.special import hermite 
 from math import factorial
@@ -69,7 +75,7 @@ Pc = projectors['+Z'] + projectors['-Z']
 ### COMPUTE EXPECTATIONS OF FINITE-ENERGY CODE OPERATORS
 rounds = np.array([0, 100, 200, 400, 800])
 
-SAVE_FIGURE = False
+SAVE_FIGURE = True
 
 purity = np.zeros_like(rounds, dtype=float)
 nbar = np.zeros_like(rounds, dtype=float)
@@ -92,7 +98,7 @@ for i, t in enumerate(rounds):
         # this is needed because the agent chose to stabilize a displaced code.
         # the displacement "eps" is found from data. 
         D = ops.DisplacementOperator(Ns)
-        eps = np.ones(len(Delta)) * (0.10-0.10j) * np.sqrt(np.pi/2)
+        eps = np.ones(len(Delta)) * (0.08-0.12j) * np.sqrt(np.pi/2)
         eps = tf.cast(eps, c64)
         
         states = {s : matvec(D(eps), states[s]) for s in states.keys()}
@@ -134,7 +140,7 @@ for i, t in enumerate(rounds):
                 label=r'Projector, $\Pi_\Delta$', linestyle=':', color='k')
 
 # Plot code projector expectation from completely independent measurement
-ax.plot(Delta, np.ones_like(Delta)*0.806, linestyle='--')
+# ax.plot(Delta, np.ones_like(Delta)*0.806, linestyle='--')
 
 
 Delta_i = Delta[np.argmax(avg_projector['+Z'][0])]
@@ -146,7 +152,6 @@ Delta_f = Delta[ind]
 max_code_projectors = [avg_projector['code'][t][ind] for t in rounds[1:]]
 print('Max code projector: %.3f +- %.3f, at Delta=%.3f' 
       %(np.mean(max_code_projectors), np.std(max_code_projectors), Delta_f))
-
 
 
 optimal_projected_purity = []
@@ -163,7 +168,7 @@ ax.plot(rounds, np.ones_like(rounds)*1.0, linestyle='--', color='k')
 ax.plot(rounds, purity, linestyle='none', marker='.', 
         label=r'${\rm Tr}\,[\rho^2]$')
 ax.plot(rounds, optimal_projected_purity, linestyle='none', marker='.',
-        label=r'${\rm Tr}\,[\rho_{\cal C}^2]$')
+        label=r'${\rm Tr}\,[\rho_{\Delta}^2]$')
 ax.legend()
 
 
@@ -175,27 +180,6 @@ ax.plot(rounds, nbar, linestyle='--', color='k', marker='.')
 plt.tight_layout()
 
 if SAVE_FIGURE:
-    savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\state_reconstruction'
+    savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures_working\state_reconstruction'
     fig.savefig(os.path.join(savedir, 'qec_sweep'), fmt='.pdf')
 
-
-
-
-
-optimal_fidelity = []
-for t in rounds:
-    F = avg_projector['+Z'][t][ind]
-    optimal_fidelity.append(F)
-
-fig, ax = plt.subplots(1,1, dpi=600)
-ax.plot(rounds, optimal_fidelity, linestyle='none', marker='.')
-
-from scipy.optimize import curve_fit
-
-def exp(t, T, a, b):
-    return a + b * np.exp(-t/T)
-
-popt, pcov = curve_fit(exp, rounds, optimal_fidelity, p0=(320, 0.5, 0.5))
-print(popt[0])
-rounds_ = np.linspace(0, 1000, 101)
-ax.plot(rounds_, exp(rounds_, *popt))

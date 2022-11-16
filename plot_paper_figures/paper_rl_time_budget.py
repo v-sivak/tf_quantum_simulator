@@ -37,7 +37,8 @@ ax.set_yticklabels(labels)
 ax.invert_yaxis()  # labels read top-to-bottom
 ax.set_xlabel('Time (seconds)')
 
-
+total_time = np.sum([t for (k,t) in components])
+print('Total time per epoch: %.2f' %total_time)
 
 plt.tight_layout()
 

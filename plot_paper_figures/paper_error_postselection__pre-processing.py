@@ -11,7 +11,7 @@ In this pre-processing we:
     3. Correct for Pauli frame flipping in SBS
 """
 
-datadir = r'E:\data\large_datasets\raw_binary_data_main'
+datadir = r'E:\data\large_datasets\raw_binary_data_latest'
 pdatadir = r'E:\data\paper_data\error_postselection_dataset\pre_processed_data'
 
 all_files = os.listdir(datadir)

@@ -16,7 +16,7 @@ import matplotlib.gridspec as gridspec
 datadir = r'E:\data\paper_data\hamiltonian_calibration'
 
 
-SAVE_FIGURE = True
+SAVE_FIGURE = False
 
 
 ### 1st PANEL: Qubit spectroscopy with oscillator in vacuum

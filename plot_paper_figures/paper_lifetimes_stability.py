@@ -21,9 +21,9 @@ T1_vs_n = dict(np.load(os.path.join(datadir, 'T1_vs_nbar.npz')))
 Pe = np.load(os.path.join(datadir, 'Pe.npz'))['Pe']
 
 
-SAVE_FIGURE = True
+SAVE_FIGURE = False
 USE_LEGEND = False
-SAVE_GAIN_FIGURE = True
+SAVE_GAIN_FIGURE = False
 
 
 print('Mean Fock T1: %.2f +- %.2f' %(lifetimes['fock_T1_v1'].mean(), lifetimes['fock_T1_v1'].std()))
@@ -49,9 +49,9 @@ print('Corr. R with transmon T1: %.3f' %r)
 
 
 # SOME PLOTTING CONVENTIONS
-label={'tmon_T1' : r'$T_1^{\,q}$', 
-       'tmon_T2E' : r'$T_{2E}^{\,q}$', 
-       'tmon_T2R' : r'$T_{2R}^{\,q}$',
+label={'tmon_T1' : r'$T_1^{\,t}$', 
+       'tmon_T2E' : r'$T_{2E}^{\,t}$', 
+       'tmon_T2R' : r'$T_{2R}^{\,t}$',
        'fock_T1_v1' : r'$T_1^{\,c}$',
        'fock_T2_v1' : r'$T_2^{\,c}$',
        'fock_T1_v2' : r'Fock $T_1^{v2}$', 
@@ -71,23 +71,23 @@ marker={'tmon_T1' : '.',
         'gkp_Y' : '.', 
         'gkp_Z' : '.'}
 
-colors = {'tmon_T1' : plt.get_cmap('tab20b')(17), 
-          'tmon_T2E' : plt.get_cmap('tab20b')(0), 
+colors = {'tmon_T1' : '#bc3908', 
+          'tmon_T2E' : '#4f772d', 
           'tmon_T2R' : plt.get_cmap('tab20b')(3),
-          'fock_T1_v1' : plt.get_cmap('Paired')(1), 
+          'fock_T1_v1' : '#e63946', 
           'fock_T1_v2' : plt.get_cmap('Paired')(0), 
-          'fock_T2_v1' : plt.get_cmap('Paired')(3),
+          'fock_T2_v1' : '#457b9d',
           'fock_T2_v2' : plt.get_cmap('Paired')(2),
-          'gkp_X' : plt.get_cmap('tab20c')(4), 
-          'gkp_Y' : plt.get_cmap('tab20')(6), 
-          'gkp_Z' : plt.get_cmap('tab20c')(5)}
+          'gkp_X' : '#f4a261', 
+          'gkp_Y' : '#e76f51', 
+          'gkp_Z' : '#2a9d8f'}
 
 
 ##############################################################################
 ##############################################################################
 ### PLOT LIFETIMES STABILITY
-fig, axes = plt.subplots(3,1, dpi=600, gridspec_kw={'height_ratios': [2.23, 1.7, 1]}, 
-                          sharex=True, figsize=(5,3.8)) # (3.5,2.5)
+fig, axes = plt.subplots(3,1, dpi=600, gridspec_kw={'height_ratios': [2.23, 1.6, 1.1]}, 
+                          sharex=True, figsize=(5,3.9)) # (3.5,2.5)
 
 ax = axes[0]
 ax.grid(True, lw=0.5)
@@ -130,7 +130,7 @@ ax.plot(np.sort(np.array(readout['readout_times']))-t0,
 ax = axes[2]
 ax.set_xlabel('Time (days)')
 
-ax.set_ylabel(r'$\sqrt{\overline{n}}$ (uncal.)')
+ax.set_ylabel(r'$\sqrt{\overline{n}}$ (DAC units)')
 
 T1_vs_n_times, nbars, T1_vs_nbars = T1_vs_n['times'], T1_vs_n['nbars'], T1_vs_n['T1s']
 ind = np.argsort(T1_vs_n_times)
@@ -140,9 +140,9 @@ days = (T1_vs_n_times-T1_vs_n_times[0])
 p = ax.pcolormesh(days, nbars, T1_vs_nbars.transpose(), cmap='RdYlGn', vmin=0, vmax=300)
 ax.set_ylim(0,0.45)
 ax.set_yticks([0,0.2,0.4])
-# ax.plot(days, np.ones_like(days)*0.22, linestyle='--', color='k')
+ax.plot(days, np.ones_like(days)*0.22, linestyle='--', color='k')
 # plt.colorbar(p, orientation='horizontal', label=r'$T_1^{\, q}$ (us)',
-#              ticks=[0,100,200,300])
+#               ticks=[0,100,200,300])
 
 plt.tight_layout()
 
@@ -169,6 +169,17 @@ bins={'tmon_T1' : 25,
       'gkp_Y' : 30, 
       'gkp_Z' : 30}
 
+colors = {'tmon_T1' : '#bc3908', 
+          'tmon_T2E' : '#4f772d', 
+          'tmon_T2R' : plt.get_cmap('tab20b')(3),
+          'fock_T1_v1' : '#219ebc', 
+          'fock_T1_v2' : plt.get_cmap('Paired')(0), 
+          'fock_T2_v1' : '#457b9d',
+          'fock_T2_v2' : plt.get_cmap('Paired')(2),
+          'gkp_X' : '#f4a261', 
+          'gkp_Y' : '#e76f51', 
+          'gkp_Z' : '#2a9d8f'}
+
 fig, axes = plt.subplots(1,2, figsize=(7,2), dpi=600, gridspec_kw={'width_ratios': [1.8, 1]})
 ax = axes[0]
 ax.set_xlabel(r'Time constant (ms)')
@@ -177,25 +188,25 @@ ax.set_yticks([0,5,10,15,20])
 for op in ['tmon_T1', 'tmon_T2R', 'tmon_T2E',
            'gkp_Z', 'gkp_Y', 'fock_T1_v1', 'fock_T2_v1']: 
     ax.hist(lifetimes[op]*1e-3, color=colors[op], bins=bins[op], label=label[op])
-ax.legend(ncol=3)
+# ax.legend(ncol=3)
 
 T_phi_v1 = 1/(1/lifetimes['fock_T2_v1']-1/2/lifetimes['fock_T1_v1'])
 from_tmon = lifetimes['tmon_T1']/Pe
 
 ax = axes[1]
-ax.set_xlabel(r'Pure dephasing time (ms)')
+ax.set_xlabel(r'Oscillator dephasing time (ms)')
 # ax.set_ylabel(r'Counts')
 ax.set_xlim(3,9.5)
 ax.set_yticks([0,5,10])
-ax.hist(from_tmon*1e-3, bins=31, label=r'$(\Gamma_\varphi^{\,c,q})^{-1}$')
+ax.hist(from_tmon*1e-3, bins=31, label=r'$(\gamma_\varphi^{\,c,t})^{-1}$')
 ax.hist(T_phi_v1*1e-3, alpha=0.6, bins=31, label=r'($\gamma_2^{\,c}-\gamma_1^{\,c}/2)^{-1}$')
-ax.legend()
+# ax.legend()
 plt.tight_layout()
 
 
 # Save figure
 if SAVE_FIGURE:
-    savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\histogram_lifetimes'
+    savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures_working\histogram_lifetimes'
     savename = 'lifetimes_histogram'
     fig.savefig(os.path.join(savedir, savename), fmt='pdf')
 

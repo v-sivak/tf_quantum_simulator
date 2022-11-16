@@ -15,16 +15,16 @@ def log_linear(x, a, b):
 
 datadir = r'E:\data\paper_data\transmon_noise_injection'
 
-SAVE_MAIN_FIGURE = False
+SAVE_MAIN_FIGURE = True
 SAVE_VERIFICATION_FIGURE = False
 
 
-color = {'T1' : plt.get_cmap('tab20b')(17), 
-          'T2E' : plt.get_cmap('tab20b')(0), 
-          'T1_cav' : plt.get_cmap('Paired')(1), 
-          'T2_cav' : plt.get_cmap('Paired')(3),
-          'T_phi' : plt.get_cmap('tab20b')(0), 
-          'T_phi_cav' : plt.get_cmap('Paired')(3)}
+color = {'T1' : '#bc3908', 
+          'T2E' : '#4f772d', 
+          'T1_cav' : '#e63946', 
+          'T2_cav' : '#457b9d',
+          'T_phi' : '#4f772d', 
+          'T_phi_cav' : '#457b9d'}
 
 
 ### NOISE VERIFICATION EXPERIMENTS
@@ -38,9 +38,8 @@ taus = dict(np.load(os.path.join(datadir, 'T1_noise_taus.npz')))
 errorbars = dict(np.load(os.path.join(datadir, 'T1_noise_errorbars.npz')))
 readout = dict(np.load(os.path.join(datadir, 'T1_noise_readout.npz')))
 
-ax = axes[1]
-ax.set_xlabel('Noise voltage RMS (V)')
-ax.set_title(r'$\gamma_\varphi^{\,q}$ constant, $\gamma_1^{\,q}$ increasing')
+ax = axes[0]
+ax.set_title(r'$\gamma_\varphi^{\,t}$ constant, $\gamma_1^{\,t}$ increasing')
 ax.set_ylim(1e-1, 2.5e2)
 ax.grid(True, lw=0.5)
 ax.set_yscale('log')
@@ -84,8 +83,9 @@ readout = {k:v[ind] for (k,v) in readout.items()}
 
 errorbars['T1_cav'][errorbars['T1_cav'].argmax()] = taus['T1_cav'][errorbars['T1_cav'].argmax()-1]
 
-ax = axes[0]
-ax.set_title(r'$\gamma_1^{\,q}$ constant, $\gamma_\varphi^{\,q}$ increasing')
+ax = axes[1]
+ax.set_xlabel('Noise voltage RMS (V)')
+ax.set_title(r'$\gamma_1^{\,t}$ constant, $\gamma_\varphi^{\,t}$ increasing')
 ax.grid(True, lw=0.5)
 ax.set_yscale('log')
 ax.set_ylim(1e-1, 6e2)
@@ -155,9 +155,9 @@ for m in ['gkp_Y', 'gkp_Z']:
             color=colors[m], linestyle='none')
 
     # Fit error sensitivity of this state to bit flips
-    # popt, pcov = curve_fit(log_linear, 1/(taus['T1']*1e-6), np.log(1/(taus[m]*1e-6)))
-    # eq_label = 'T1 noise ' + m + r'=%.2f + %.2f $\gamma_1^{\,t}$' %tuple(popt)
-    # print(eq_label)
+    popt, pcov = curve_fit(log_linear, 1/(taus['T1']*1e-6), np.log(1/(taus[m]*1e-6)))
+    eq_label = 'T1 noise ' + m + r'=%.2f + %.2f $\gamma_1^{\,t}$' %tuple(popt)
+    print(eq_label)
     # ax.plot(1.1/(taus['T1']*1e-6), np.exp(log_linear(1.1/(taus['T1']*1e-6), *popt)), 
     #         color=colors[m], linestyle='--', zorder=0)
 
@@ -190,9 +190,9 @@ for m in ['gkp_Y', 'gkp_Z']:
             color=colors[m], linestyle='none')
     
     # Fit error sensitivity of this state to phase flips
-    # popt, pcov = curve_fit(log_linear, 1/(taus['T_phi'][:-10]*1e-6), np.log(1/(taus[m][:-10]*1e-6)))
-    # eq_label = 'T2 noise ' + m + r'=%.2f + %.4f $\gamma_\phi^{\,t}$' %tuple(popt)
-    # print(eq_label)
+    popt, pcov = curve_fit(log_linear, 1/(taus['T_phi'][:-10]*1e-6), np.log(1/(taus[m][:-10]*1e-6)))
+    eq_label = 'T2 noise ' + m + r'=%.2f + %.4f $\gamma_\phi^{\,t}$' %tuple(popt)
+    print(eq_label)
     # ax.plot(1/(taus['T_phi']*1e-6), np.exp(log_linear(1/(taus['T_phi']*1e-6), *popt)),
     #         color=colors[m], linestyle='--', zorder=0)
 
@@ -204,6 +204,8 @@ if SAVE_MAIN_FIGURE:
     savename = 'noise_injection_one_panel'
     fig.savefig(os.path.join(savedir, savename), fmt='pdf')
     
+
+
 
 
 ### LOGICAL VS PHYSICAL RATES V2
@@ -218,7 +220,8 @@ ax.set_xscale('log')
 sensitivity = {}
 
 # Bit-flips
-ax.plot(physical_error_rate['bit-flips'], fidelity_error_rate['bit-flips'], marker='.')
+ax.plot(physical_error_rate['bit-flips'], fidelity_error_rate['bit-flips'], marker='.',
+        linestyle='none')
 
 popt, pcov = curve_fit(log_linear, physical_error_rate['bit-flips'], 
                        np.log(fidelity_error_rate['bit-flips']))
@@ -230,7 +233,8 @@ ax.plot(physical_error_rate['bit-flips'], np.exp(log_linear(physical_error_rate[
 
 
 # Phase-flips
-ax.plot(physical_error_rate['phase-flips'], fidelity_error_rate['phase-flips'], marker='.')
+ax.plot(physical_error_rate['phase-flips'], fidelity_error_rate['phase-flips'], marker='.',
+        linestyle='none')
 
 popt, pcov = curve_fit(log_linear, physical_error_rate['phase-flips'][:-15], 
                        np.log(fidelity_error_rate['phase-flips'][:-15]))

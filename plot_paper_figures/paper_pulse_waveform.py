@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import plot_config
 import os
 
-SAVE_FIGURE = False
+SAVE_FIGURE = True
 LEGEND = False
 
 datadir = r'E:\data\paper_data\pulse_waveform'
@@ -18,17 +18,16 @@ data = np.load(filename, allow_pickle=True)
 c_pulse, q_pulse = data['c_pulse'], data['q_pulse']
 time = np.arange(len(c_pulse))
 
-fig, ax = plt.subplots(1, 1, figsize=(7, 1.5), dpi=600)
+
+fig, ax = plt.subplots(1, 1, figsize=(4.85, 1.5), dpi=600)
 colors = plt.get_cmap('Paired')
-
-
 # ax.grid(True)
 ax.set_ylabel('DAC amplitude')
-ax.plot(time*1e-3, c_pulse.real, label='I', color=colors(1))
-ax.plot(time*1e-3, c_pulse.imag, label='Q', color=colors(0))
-ax.set_xlabel('Time (us)')
-ax.plot(time*1e-3, q_pulse.real, label='I', color=colors(5))
-ax.plot(time*1e-3, q_pulse.imag, label='Q', color=colors(4))
+ax.plot(time*1e-3, c_pulse.real, label='I', color='#219ebc', linestyle='-')
+ax.plot(time*1e-3, c_pulse.imag, label='Q', color='#219ebc', linestyle=':')
+ax.set_xlabel(r'Time ($\mu$s)')
+ax.plot(time*1e-3, q_pulse.real, label='I', color='#fb8500', linestyle='-')
+ax.plot(time*1e-3, q_pulse.imag, label='Q', color='#fb8500', linestyle=':')
 
 if LEGEND: ax.legend()
 plt.tight_layout()

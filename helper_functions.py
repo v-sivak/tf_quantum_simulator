@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import qutip as qt
 
 def plot_phase_space(state, tensorstate, phase_space_rep='wigner', 
-                     lim=4, pts=81, title=None):
+                     lim=4, pts=81, title=None, op=False):
     """
     Plot phase space representation of the state. Converts a batch of states
     to density matrix.
@@ -36,7 +36,7 @@ def plot_phase_space(state, tensorstate, phase_space_rep='wigner',
         parity = utils.tensor([ops.identity(2), ops.parity(N)])
         D = ops.DisplacementOperator(N, tensor_with=[ops.identity(2), None])
     else:
-        N = state.shape[1]
+        N = state.shape[-1]
         D = ops.DisplacementOperator(N)
         parity = ops.parity(N)
     
@@ -46,7 +46,10 @@ def plot_phase_space(state, tensorstate, phase_space_rep='wigner',
         state, _ = utils.normalize(tf.linalg.matvec(P0, state))
     
     # make a density matrix
-    dm = utils.density_matrix(state)
+    if not op:
+        dm = utils.density_matrix(state)
+    else:
+        dm = state
 
     # Generate a grid of phase space points
     x = np.linspace(-lim, lim, pts)
@@ -61,14 +64,16 @@ def plot_phase_space(state, tensorstate, phase_space_rep='wigner',
     # Calculate and plot the phase space representation
     if phase_space_rep == 'wigner':
         displaced_parity = matmul(D(grid_flat), matmul(parity, D(-grid_flat)))
-        W = 1/pi * tf.linalg.trace(matmul(displaced_parity, dm))
+        W = 2/pi * tf.linalg.trace(matmul(displaced_parity, dm))
         W_grid = tf.reshape(W, grid.shape)
     
         fig, ax = plt.subplots(1,1, dpi=200)
         fig.suptitle(title)
         ax.pcolormesh(x, y, np.transpose(W_grid.numpy().real), 
-                      cmap='RdBu_r', vmin=-1/pi, vmax=1/pi)
+                      cmap='RdBu_r', vmin=-2/pi, vmax=2/pi)
         ax.set_aspect('equal')
+    
+        return (x, y, W_grid.numpy().real)
     
     if phase_space_rep == 'CF':
         

@@ -196,7 +196,7 @@ print('QEC Gain: %.2f +- %.2f' %(gain, delta_gain))
 ### BAR PLOT OF CHANNEL FIDELITY LIFETIME
 fig, ax = plt.subplots(1,1, dpi=600, figsize=(1.38,0.915))
 ax.bar([0,1,2], [1e-3/gamma_tmon, 1e-3/gamma_fock, 1e-3/gamma_gkp],
-       color='grey')
+       color='#8ecae6')
 
 delta_T_gkp = delta_gamma_gkp / gamma_gkp**2
 delta_T_fock = delta_gamma_fock / gamma_fock**2
@@ -232,9 +232,9 @@ def F_gkp(t):
 
 
 times = np.linspace(0,5000,201)
-ax.plot(times*1e-3, F_transmon(times), label=r'Transmon $\{|g\rangle, |e\rangle\}$')
-ax.plot(times*1e-3, F_fock(times), label=r'Oscillator $\{|0\rangle, |1\rangle\}$')
-ax.plot(times*1e-3, F_gkp(times), label='Square GKP code')
+ax.plot(times*1e-3, F_transmon(times), label=r'$\{|g\rangle, |e\rangle\}$')
+ax.plot(times*1e-3, F_fock(times), label=r'$\{|0\rangle, |1\rangle\}$')
+ax.plot(times*1e-3, F_gkp(times), label='grid code')
 ax.legend()
 plt.tight_layout()
 
@@ -260,86 +260,86 @@ if SAVE_GAIN_FIGURE:
     
     
     
-from scipy.optimize import curve_fit
-import numpy as np
-import matplotlib.pyplot as plt
+# from scipy.optimize import curve_fit
+# import numpy as np
+# import matplotlib.pyplot as plt
 
 
-def exp1(t, T1, a0, a1):
-    return a0 + a1*np.exp(-t/T1)
+# def exp1(t, T1, a0, a1):
+#     return a0 + a1*np.exp(-t/T1)
 
-def exp2(t, T1, T2, a0, a1, a2):
-    return a0 + a1*np.exp(-t/T1) + a2*np.exp(-t/T2)
-
-
-def scale(a):
-    return (a-np.mean(a[-5:]))/(a-np.mean(a[-5:]))[0]
+# def exp2(t, T1, T2, a0, a1, a2):
+#     return a0 + a1*np.exp(-t/T1) + a2*np.exp(-t/T2)
 
 
-fig, ax = plt.subplots(1,1, dpi=600)
-ax.set_yscale('log')
-ax.set_ylim(1e-2,1.2)
-
-line = '--'
-
-# ax.plot(times_us['fock_T1'], state['fock_T1'], linestyle='none', marker='.')
-
-ax.plot(times_us['fock_T1'], scale(state['fock_T1']), linestyle=line, marker='.')
-
-# ax.plot(times_us['fock_T2'], (state['fock_T2']/state['fock_T2'][0]), 
-#         linestyle=line, marker='.')
-
-ax.plot(times_us['transmon_T1'], scale(state['transmon_T1']), linestyle=line, marker='.')
-
-ax.plot(times_us['transmon_T2E'], scale(state['transmon_T2E']), linestyle=line, marker='.')
-
-# ax.plot(times_us['transmon_T2E'], (state['transmon_T2E']-np.mean(state['transmon_T2E'][-5:]))/state['transmon_T2E'][0], 
-#         linestyle=line, marker='.')
-
-# popt, pcov = curve_fit(exp1, times_us['fock_T1'], state['fock_T1'], p0=(500, 0, 1))
-# ax.plot(times_us['fock_T1'], exp1(times_us['fock_T1'], *popt))
-
-# popt, pcov = curve_fit(exp2, times_us['fock_T1'], state['fock_T1'], p0=(500, 1000, 0, 1, 0))
-# ax.plot(times_us['fock_T1'], exp2(times_us['fock_T1'], *popt))
+# def scale(a):
+#     return (a-np.mean(a[-5:]))/(a-np.mean(a[-5:]))[0]
 
 
-ax.plot(times_us['gkp_X'], scale(state['gkp_X']), linestyle=line, marker='.')
-ax.plot(times_us['gkp_Y'], scale(state['gkp_Y']), linestyle=line, marker='.')
-ax.plot(times_us['gkp_Z'], scale(state['gkp_Z']), linestyle=line, marker='.')
+# fig, ax = plt.subplots(1,1, dpi=600)
+# ax.set_yscale('log')
+# ax.set_ylim(1e-2,1.2)
 
-ax.plot(times_us['fock_T2'], scale(state['fock_T2']), linestyle=line, marker='.')
+# line = '--'
+
+# # ax.plot(times_us['fock_T1'], state['fock_T1'], linestyle='none', marker='.')
+
+# ax.plot(times_us['fock_T1'], scale(state['fock_T1']), linestyle=line, marker='.')
+
+# # ax.plot(times_us['fock_T2'], (state['fock_T2']/state['fock_T2'][0]), 
+# #         linestyle=line, marker='.')
+
+# ax.plot(times_us['transmon_T1'], scale(state['transmon_T1']), linestyle=line, marker='.')
+
+# ax.plot(times_us['transmon_T2E'], scale(state['transmon_T2E']), linestyle=line, marker='.')
+
+# # ax.plot(times_us['transmon_T2E'], (state['transmon_T2E']-np.mean(state['transmon_T2E'][-5:]))/state['transmon_T2E'][0], 
+# #         linestyle=line, marker='.')
+
+# # popt, pcov = curve_fit(exp1, times_us['fock_T1'], state['fock_T1'], p0=(500, 0, 1))
+# # ax.plot(times_us['fock_T1'], exp1(times_us['fock_T1'], *popt))
+
+# # popt, pcov = curve_fit(exp2, times_us['fock_T1'], state['fock_T1'], p0=(500, 1000, 0, 1, 0))
+# # ax.plot(times_us['fock_T1'], exp2(times_us['fock_T1'], *popt))
 
 
+# ax.plot(times_us['gkp_X'], scale(state['gkp_X']), linestyle=line, marker='.')
+# ax.plot(times_us['gkp_Y'], scale(state['gkp_Y']), linestyle=line, marker='.')
+# ax.plot(times_us['gkp_Z'], scale(state['gkp_Z']), linestyle=line, marker='.')
+
+# ax.plot(times_us['fock_T2'], scale(state['fock_T2']), linestyle=line, marker='.')
 
 
 
-# times = times_us['transmon_T2E']
-# T = times_us['transmon_T2E'][1]-times_us['transmon_T2E'][0] # in [us]
-# D = state['transmon_T2E']
-
-# D = np.exp(-times/50)*np.cos(times/30)
-
-# s_re = np.linspace(0, 1/10, 201)
-# s_im = np.linspace(-1/10, 1/10, 51)
-# xs, ys = np.meshgrid(s_re, s_im, indexing='xy')
-# s_grid = xs + 1j*ys
-
-# z_grid = np.exp(s_grid*T)
 
 
-# def z_transform(z_grid, data):
-#     # z_grid is 2-dimensional, 
-#     # data   is 1-dimensional
-#     # output is 2-dimensional
-#     N = len(data)
-#     z_grid = np.stack([z_grid]*N)
-#     n = np.arange(N).reshape([N,1,1])
-#     data = data.reshape([N,1,1])
-#     return np.sum(data * z_grid ** (-n), axis=0)
+# # times = times_us['transmon_T2E']
+# # T = times_us['transmon_T2E'][1]-times_us['transmon_T2E'][0] # in [us]
+# # D = state['transmon_T2E']
 
-# Z = z_transform(z_grid, D)
+# # D = np.exp(-times/50)*np.cos(times/30)
 
-# fig, ax = plt.subplots(1,1)
-# ax.pcolormesh(s_re, s_im, np.abs(Z), cmap='Reds')
+# # s_re = np.linspace(0, 1/10, 201)
+# # s_im = np.linspace(-1/10, 1/10, 51)
+# # xs, ys = np.meshgrid(s_re, s_im, indexing='xy')
+# # s_grid = xs + 1j*ys
+
+# # z_grid = np.exp(s_grid*T)
+
+
+# # def z_transform(z_grid, data):
+# #     # z_grid is 2-dimensional, 
+# #     # data   is 1-dimensional
+# #     # output is 2-dimensional
+# #     N = len(data)
+# #     z_grid = np.stack([z_grid]*N)
+# #     n = np.arange(N).reshape([N,1,1])
+# #     data = data.reshape([N,1,1])
+# #     return np.sum(data * z_grid ** (-n), axis=0)
+
+# # Z = z_transform(z_grid, D)
+
+# # fig, ax = plt.subplots(1,1)
+# # ax.pcolormesh(s_re, s_im, np.abs(Z), cmap='Reds')
 
 
