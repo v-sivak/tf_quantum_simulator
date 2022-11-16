@@ -16,21 +16,43 @@ from scipy.optimize import curve_fit
 """ This is a simple example of measureing GKP logical lifetime. """
 
 N = 100 # Hilbert space truncation for oscillator
-batch_size = 4000 # number of quantum trajectories
-Delta = 0.40 # effective squeezing parameter
-steps = 1000 # number of rounds to simulate
+batch_size = 1000 # number of quantum trajectories
+Delta = 0.34 # effective squeezing parameter
+steps = 1400 # number of rounds to simulate
 test_states = ['+X', '+Y']
+
+
+params = dict(
+    K = -4.8,
+    chi = 46.5e3,
+    chi_prime = 5.8,
+    n_th = 0.05,
+    T1_qb = 258e-6,
+    T2_qb = 147e-6,
+    T1_osc = 622e-6,
+    gamma_phi_osc = 0,
+    T2_osc = 923e-6,
+    t_read = 2.4e-6,
+    t_VR = 448e-9, # virtual rotation gate
+    t_idle = 500e-9, # idle section
+    t_sbs = [232e-9, 906e-9, 308e-9, (24+78+24)*1e-9],
+    dt = 100e-9, # time discretization step or MC trajectories      
+    p_qnd_e = 0.990,  # prob of process e -> e
+    p_qnd_g = 0.9996, # prob of process g -> g
+    p_dd = 0.16 # demolition detection probability
+    )
+
 
 # Create GKP code words and initialize the simulator
 ideal_stabilizers, ideal_paulis, states, displacement_amplitudes = \
     hf.GKP_code(True, N, Delta=Delta, tf_states=True)
-sim = Simulator(N)
+sim = Simulator(N, params)
 
 pauli_m, rounds = {}, {}
 for s in test_states:
     init_state = tf.concat([states[s]]*batch_size, axis=0)
     pauli_m[s], rounds[s] = [], []
-        
+
     state = init_state
     for i in range(steps):
         quad = 'x' if i % 2 == 0 else 'p'
@@ -40,9 +62,7 @@ for s in test_states:
         _, m = sim.ideal_phase_estimation(state_copy, beta, sample=False)
         pauli_m[s].append(tf.reduce_mean(m))
         rounds[s].append(i)
-    
-    hf.plot_phase_space(init_state, True, 'wigner', title='Initialize '+s)
-    hf.plot_phase_space(state, True, 'wigner', title='Initialize '+s)
+
 
 # Fit to exponential decay 
 def exp_decay(n, T, A, B):
