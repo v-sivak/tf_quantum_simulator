@@ -16,9 +16,9 @@ from scipy.optimize import curve_fit
 """ This is a simple example of measureing GKP logical lifetime. """
 
 N = 100 # Hilbert space truncation for oscillator
-batch_size = 1000 # number of quantum trajectories
-Delta = 0.34 # effective squeezing parameter
-steps = 1400 # number of rounds to simulate
+batch_size = 100 # number of quantum trajectories
+Delta = 0.34 # code envelope parameter
+steps = 600 # number of rounds to simulate
 test_states = ['+X', '+Y']
 
 
