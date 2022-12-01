@@ -3,7 +3,6 @@
 Created on Thu Sep 23 13:14:42 2021
 """
 import matplotlib.pyplot as plt
-import h5py
 import numpy as np
 import plot_config
 import os
@@ -15,13 +14,15 @@ def plot_action(action, axis, color, run):
     axis.fill_between(epochs[run]['training'], action_min, action_max, alpha=0.3, color=color)
     axis.plot(epochs[run]['training'], np.mean(action, axis=1), linestyle='-', color=color)
 
+datadir = os.path.join(plot_config.data_root_dir, 'rl_training')
+
 all_runs = {
-    0 : r'E:\data\paper_data\rl_training\run_165_24.06.2022-17.48.55_paper_example',
-    1 : r'E:\data\paper_data\rl_training\run_185_12.09.2022-14.58.06_example_1',
-    2 : r'E:\data\paper_data\rl_training\run_186_12.09.2022-18.36.42_example_2',
-    3 : r'E:\data\paper_data\rl_training\run_189_13.09.2022-14.44.50_example_3',
-    4 : r'E:\data\paper_data\rl_training\run_190_13.09.2022-19.11.47_example_4',
-    5 : r'E:\data\paper_data\rl_training\run_191_14.09.2022-08.43.13_example_5'
+    0 : os.path.join(datadir, 'run_165_24.06.2022-17.48.55_paper_example'),
+    1 : os.path.join(datadir, 'run_185_12.09.2022-14.58.06_example_1'),
+    2 : os.path.join(datadir, 'run_186_12.09.2022-18.36.42_example_2'),
+    3 : os.path.join(datadir, 'run_189_13.09.2022-14.44.50_example_3'),
+    4 : os.path.join(datadir, 'run_190_13.09.2022-19.11.47_example_4'),
+    5 : os.path.join(datadir, 'run_191_14.09.2022-08.43.13_example_5')
     }
 
 SAVE_REWARD_FIGURE = False
@@ -37,8 +38,6 @@ cavity_phases = {}
 betas = {}
 detunings = {}
 alphas = {}
-
-
 
 # shape = (662, 3, 2, 150, 10) : (N_epochs, [m1,m2,m0], [Sx, Sz], N_msmts, N_candidates)
 for run, logdir in all_runs.items():
@@ -115,10 +114,9 @@ plot_action(alpha**2, ax, palette(0), run)
 plt.tight_layout()
 
 if SAVE_REWARD_FIGURE:
-    savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures_working\fig2_qec_circuit_and_rl_training'
-    savename = 'learning_progress'
-    fig.savefig(os.path.join(savedir, savename), fmt='pdf')
-
+    savename = os.path.join(plot_config.save_root_dir, 
+                        r'fig2_qec_circuit_and_rl_training\learning_progress.pdf')
+    fig.savefig(savename)
 
 
 
@@ -126,7 +124,6 @@ if SAVE_REWARD_FIGURE:
 
 ### PLOT ACTIONS
 palette = plt.get_cmap('tab10')
-
 
 fig, axes = plt.subplots(2, 5, figsize = (7, 2.6), dpi=600, sharex=True,
                          sharey='col')
@@ -226,8 +223,7 @@ axes[1,0].set_xticks([0,400,800])
 plt.tight_layout()
 
 
-
 if SAVE_ACTION_FIGURE:
-    savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\reinforcement_learning'
-    savename = 'action_evolution'
-    fig.savefig(os.path.join(savedir, savename), fmt='pdf')
+    savename = os.path.join(plot_config.save_root_dir, 
+                        r'reinforcement_learning\action_evolution.pdf')
+    fig.savefig(savename)

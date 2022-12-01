@@ -4,15 +4,17 @@ Created on Sun Sep 11 13:49:50 2022
 """
 import os
 import numpy as np 
+import plot_config
 """
 In this pre-processing we: 
     1. Post-select data on correct state initialization (m0=g)
     2. Combine datasets where (+1 -> g, -1 -> e) and (+1 -> e, -1 -> g)
-    3. Correct for Pauli frame flipping in SBS
+    3. Correct for Pauli frame flipping in the SBS
 """
 
 datadir = r'E:\data\large_datasets\raw_binary_data_latest'
-pdatadir = r'E:\data\paper_data\error_postselection_dataset\pre_processed_data'
+pdatadir = os.path.join(plot_config.data_root_dir, 
+                'error_postselection_dataset\pre_processed_data')
 
 all_files = os.listdir(datadir)
 all_rounds, all_states = [], []

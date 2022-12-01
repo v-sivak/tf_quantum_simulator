@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 """
 Created on Sat Dec 12 12:52:25 2020
-
-@author: Vladimir Sivak
 """
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+
+
+### Setup directories
+data_root_dir = r'E:\data\paper_data'
+save_root_dir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures_working'
 
 ### Setup matplotlib
 fontsize = 7

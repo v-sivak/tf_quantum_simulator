@@ -8,10 +8,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+SAVE_FIGURE = False
 
-SAVE_FIGURE = True
-    
-corr_data = np.load(r'E:\data\paper_data\displacement_error_traces\measurements.npz')
+corr_data = np.load(os.path.join(plot_config.data_root_dir, 
+                    r'displacement_error_traces\measurements.npz'))
 msmts, delta_range = corr_data['msmts'], corr_data['delta_range']
 
 msmts_avg = np.mean(msmts, axis=1)
@@ -36,5 +36,6 @@ p = ax.pcolormesh(delta_range[:N_delta]/np.sqrt(2*np.pi), np.arange(N_round),
 plt.tight_layout()
 
 if SAVE_FIGURE:
-    savename = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\fig4_characterization\error_traces'
-    fig.savefig(savename, fmt='pdf')
+    savename = os.path.join(plot_config.save_root_dir, 
+                            r'fig4_characterization\error_traces.pdf')
+    fig.savefig(savename)

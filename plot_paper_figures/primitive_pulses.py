@@ -8,9 +8,9 @@ import plot_config
 from scipy.optimize import curve_fit
 import os
 
-datadir = r'E:\data\paper_data\primitive_pulses'
+datadir = os.path.join(plot_config.data_root_dir, 'primitive_pulses')
 
-SAVE_FIGURE = True
+SAVE_FIGURE = False
 LEGEND = False
 
 fig, axes = plt.subplots(1, 3, dpi=600, figsize=(7,2.05))
@@ -64,7 +64,8 @@ def func(amp, a, b, c):
 popt, pcov = curve_fit(func, amps, 1-2*data, p0=(1,0.5,0))
 ax.plot(amps, func(amps, *popt), color='black')
 
-
 plt.tight_layout()
-savename = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\primitive_pulses\primitive_pulses.pdf'
+
+savename = os.path.join(plot_config.save_root_dir, 
+                        r'primitive_pulses\primitive_pulses.pdf')
 if SAVE_FIGURE: fig.savefig(savename)

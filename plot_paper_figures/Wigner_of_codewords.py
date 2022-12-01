@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from math import sqrt, pi
 
-datadir = r'E:\data\paper_data\Wigner_tomography'
+datadir = os.path.join(plot_config.data_root_dir, 'Wigner_tomography')
 
 wigner_files = [
     os.path.join(datadir, '+Z_n12.npz'), 
@@ -59,12 +59,9 @@ for j in range(3):
 
 
 plt.tight_layout()
-
-if SAVE_FIGURE:
-    savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\fig1_system_and_tomography'
-    savename = 'CF_tomo_square_code'
-    fig.savefig(os.path.join(savedir, savename), fmt='pdf')
-
+savename = os.path.join(plot_config.save_root_dir, 
+                        r'fig1_system_and_tomography\Wigner_tomo_square_code.pdf')
+if SAVE_FIGURE: fig.savefig(savename)
 
 # fig, ax = plt.subplots(1, 1, figsize=(4,3.375), dpi=600)
 # plt.colorbar(p)

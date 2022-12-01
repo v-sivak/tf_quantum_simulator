@@ -3,12 +3,26 @@
 Created on Mon Apr 25 14:24:27 2022
 """
 import numpy as np
+import matplotlib as mpl
 import matplotlib.pyplot as plt
-import plot_config_thesis
+import plot_config
+import os
+
+### Setup matplotlib
+fontsize = 8
+fontsize_tick = 8
+
+mpl.rcParams['font.size'] = fontsize
+mpl.rcParams['axes.labelsize'] = fontsize
+mpl.rcParams['axes.titlesize'] = fontsize
+mpl.rcParams['xtick.labelsize'] = fontsize_tick
+mpl.rcParams['ytick.labelsize'] = fontsize_tick
+mpl.rcParams['legend.fontsize'] = fontsize_tick
+
 
 SAVE_FIGURE = False
 
-# This experiment best results
+# Our experiment best results
 tc = 4.924 * 2
 Tx = 2200
 Ty = 1360
@@ -33,7 +47,9 @@ experiments = {
     r'd3$_2$' : (2022, 12.9, 6.3, 0.223), # China https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.129.030501
     r'd3$_3$' : (2022.3, 346.6, 25.2, 0.095),  # IBM https://arxiv.org/abs/2203.07205
     r'd5' : (2022.6, 35.6, 15.3, 0.029), # Google http://arxiv.org/abs/2207.06431
-    }
+    'bin2' : (2023, 694, 805, 0), # China https://arxiv.org/abs/2211.09319
+    } 
+# TODO: find out error prob for the new binomial code 
 
 
 
@@ -80,21 +96,18 @@ for exp_name, e in experiments.items():
     markersize = 6 if exp_name == r'GKP$_2$' else None
     ax.plot([Y], [p_L],  marker=marker, linestyle='none', color=color, markersize=markersize)
 
-
 # ax.grid(lw=0.5)
-
 plt.tight_layout()
 
 
 
 if SAVE_FIGURE:
-    savename = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures_working\qec_literature_review\review_1'
+    savename = os.path.join(plot_config.save_root_dir, 
+                            r'qec_literature_review\review_1')
     fig.savefig(savename, fmt='.pdf')
     
     
     
-
-
 
 
 

@@ -87,10 +87,9 @@ for i, s in enumerate(['gg', 'ge', 'eg', 'ee']):
     ax.tick_params(axis="x", color='w')
 plt.tight_layout()
 
-if SAVE_FIGURE: 
-    savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures_working\gkp_and_sbs_intro'
-    fig.savefig(os.path.join(savedir, 'Kraus'), fmt='.pdf')
-
+savename = os.path.join(plot_config.save_root_dir, 
+                        r'gkp_and_sbs_intro\Kraus.pdf')
+if SAVE_FIGURE: fig.savefig(savename)
 
 
 
@@ -224,18 +223,15 @@ ax.pcolormesh(np.abs(states)[:,:N_max].transpose(), cmap='magma_r', vmin=0, vmax
 lines(ax, color='r') 
 
 
-
 axes[5].set_yticks([])
 axes[5].set_xticks([0.5,3.5,6.5])
 axes[5].set_xticklabels([1,4,7])
 ax.set_yticklabels([])
 plt.tight_layout()
-
-if SAVE_FIGURE:
-    savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures_working\gkp_and_sbs_intro'
-    fig.savefig(os.path.join(savedir, 'correction_demo'), fmt='.pdf')
     
-
+savename = os.path.join(plot_config.save_root_dir, 
+                        r'gkp_and_sbs_intro\correction_demo.pdf')
+if SAVE_FIGURE: fig.savefig(savename)
 
 
 
@@ -258,8 +254,9 @@ if 0:
     plt.tight_layout()
     
     if SAVE_PROJECTOR_FIGURES:
-        savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures_working\gkp_and_sbs_intro\subspaces'
-        fig.savefig(os.path.join(savedir, 'C_gain'), fmt='.pdf')
+        savename = os.path.join(plot_config.save_root_dir, 
+                                r'gkp_and_sbs_intro\subspaces\C_gain.pdf')
+        fig.savefig(savename)
 
     state0 = tf.concat([U[:,0], tf.zeros(N-U.shape[0], dtype=c64)], axis=0)
     state0 = tf.linalg.matvec(ops.destroy(N), state0)
@@ -277,8 +274,9 @@ if 0:
     plt.tight_layout()
     
     if SAVE_PROJECTOR_FIGURES:
-        savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures_working\gkp_and_sbs_intro\subspaces'
-        fig.savefig(os.path.join(savedir, 'C_loss'), fmt='.pdf')
+        savename = os.path.join(plot_config.save_root_dir, 
+                                r'gkp_and_sbs_intro\subspaces\C_loss.pdf')
+        fig.savefig(savename)
 
     # Plot wigner of projectors onto error subspaces
     for i in range(6):
@@ -297,6 +295,5 @@ if 0:
         plt.tight_layout()
 
         if SAVE_PROJECTOR_FIGURES:
-            savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures_working\gkp_and_sbs_intro\subspaces'
+            savedir = os.path.join(plot_config.save_root_dir, r'gkp_and_sbs_intro\subspaces')
             fig.savefig(os.path.join(savedir, 'C'+str(i)), fmt='.pdf')
-        

@@ -75,7 +75,7 @@ Pc = projectors['+Z'] + projectors['-Z']
 ### COMPUTE EXPECTATIONS OF FINITE-ENERGY CODE OPERATORS
 rounds = np.array([0, 100, 200, 400, 800])
 
-SAVE_FIGURE = True
+SAVE_FIGURE = False
 
 purity = np.zeros_like(rounds, dtype=float)
 nbar = np.zeros_like(rounds, dtype=float)
@@ -85,7 +85,7 @@ avg_projector = {'+Z':{}, '-Z':{}, 'code':{}}
 for i, t in enumerate(rounds):
     # load data
     fname = '+Z_n='+str(t)+'.npz'
-    datadir = r'E:\data\paper_data\density_matrix_fit'
+    datadir = os.path.join(plot_config.data_root_dir, 'density_matrix_fit')
     data = np.load(os.path.join(datadir, fname))
     rho = data['rho_re'] + 1j*data['rho_im']
     rho = tf.cast(rho, c64)
@@ -180,6 +180,6 @@ ax.plot(rounds, nbar, linestyle='--', color='k', marker='.')
 plt.tight_layout()
 
 if SAVE_FIGURE:
-    savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures_working\state_reconstruction'
-    fig.savefig(os.path.join(savedir, 'qec_sweep'), fmt='.pdf')
-
+    savename = os.path.join(plot_config.save_root_dir, 
+                            r'state_reconstruction\qec_sweep.pdf')
+    fig.savefig(savename)

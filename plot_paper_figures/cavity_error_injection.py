@@ -8,8 +8,7 @@ import plot_config
 import os
 
 SAVE_FIGURE = False
-
-datadir = r'E:\data\paper_data\cavity_error_injection'
+datadir = os.path.join(plot_config.data_root_dir, 'cavity_error_injection')
 
 ### ROTATION ERRORS
 data = np.load(os.path.join(datadir, 'rotation_sweep.npz'))
@@ -42,10 +41,9 @@ plt.tight_layout()
 
 # Save figure
 if SAVE_FIGURE:
-    savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\noise_injection'
-    savename = 'rotation_errors'
-    fig.savefig(os.path.join(savedir, savename), fmt='pdf')
-    
+    savename = os.path.join(plot_config.save_root_dir, 
+                        r'noise_injection\rotation_errors.pdf')
+    fig.savefig(savename)
 
 
 ### DISPLACEMENT ERRORS
@@ -86,6 +84,6 @@ plt.tight_layout()
 
 # Save figure
 if SAVE_FIGURE:
-    savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\noise_injection'
-    savename = 'displacement_errors'
-    fig.savefig(os.path.join(savedir, savename), fmt='pdf')
+    savename = os.path.join(plot_config.save_root_dir, 
+                        r'noise_injection\displacement_errors.pdf')
+    fig.savefig(savename)

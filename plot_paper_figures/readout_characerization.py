@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Apr 19 09:14:02 2022
-
-@author: qulab
 """
 import os
 import plot_config
@@ -10,15 +8,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from math import sqrt, pi
 
-datadir = r'E:\data\paper_data\readout'
+datadir = os.path.join(plot_config.data_root_dir, 'readout')
 
-SAVE_FIGURE = True
-SAVE_T1_VS_NBAR = True
+SAVE_FIGURE = False
+SAVE_T1_VS_NBAR = False
 
 data = np.load(os.path.join(datadir, 'readout.npz'))
 thresh0 = data['thresh0']
 thresh1 = data['thresh1']
-
 
 
 ### FIGURE 1: READOUT HISTOGRAMS
@@ -53,11 +50,10 @@ axes[1].set_xlabel('I (ADC units)')
 # plt.colorbar(p)
 
 plt.tight_layout()
+savename = os.path.join(plot_config.save_root_dir, 
+                        r'readout_characterization\histograms.pdf')
+if SAVE_FIGURE: fig.savefig(savename)
 
-if SAVE_FIGURE:
-    savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\readout_characterization'
-    savename = 'histograms'
-    fig.savefig(os.path.join(savedir, savename), fmt='pdf')
 
 m = np.zeros([3,3])
 
@@ -117,12 +113,9 @@ ax.text(ofs_x+1., ofs_y+2., r'%.1f$\times 10^{%d}$' %(fman(m[2,1]), fexp(m[2,1])
 ax.text(ofs_x+2., ofs_y+2., r'  %.4f' %m[2,2])
 
 plt.tight_layout()
-
-if SAVE_FIGURE:
-    savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\readout_characterization'
-    savename = 'Markov'
-    fig.savefig(os.path.join(savedir, savename), fmt='pdf')
-
+savename = os.path.join(plot_config.save_root_dir, 
+                        r'readout_characterization\Markov.pdf')
+if SAVE_FIGURE: fig.savefig(savename)
 
 
 ### FIGURE 3: T1 VS NBAR
@@ -142,8 +135,6 @@ plt.colorbar(p, orientation='horizontal', label=r'$T_1^{\, t}\,\rm (\mu s)$',
              ticks=[0,50,100,150,200,250])
 plt.tight_layout()
 
-
-if SAVE_T1_VS_NBAR:
-    savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\readout_characterization'
-    savename = 'T1_vs_nbar'
-    fig.savefig(os.path.join(savedir, savename), fmt='pdf')
+savename = os.path.join(plot_config.save_root_dir, 
+                        r'readout_characterization\T1_vs_nbar.pdf')
+if SAVE_FIGURE: fig.savefig(savename)

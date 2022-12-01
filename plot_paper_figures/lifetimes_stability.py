@@ -6,10 +6,9 @@ import os
 import plot_config
 import numpy as np 
 import matplotlib.pyplot as plt
-from math import sqrt, pi
 
 ### LOAD DATA
-datadir = r'E:\data\paper_data\lifetimes_stability'
+datadir = os.path.join(plot_config.data_root_dir, 'lifetimes_stability')
 
 
 round_time_us = 4.924
@@ -148,7 +147,7 @@ plt.tight_layout()
 
 # Save figure
 if SAVE_FIGURE:
-    savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\lifetimes_stability'
+    savedir = os.path.join(plot_config.save_root_dir, 'lifetimes_stability')
     savename = 'lifetimes_stability'
     fig.savefig(os.path.join(savedir, savename), fmt='pdf')
     
@@ -206,7 +205,7 @@ plt.tight_layout()
 
 # Save figure
 if SAVE_FIGURE:
-    savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures_working\histogram_lifetimes'
+    savedir = os.path.join(plot_config.save_root_dir, 'histogram_lifetimes')
     savename = 'lifetimes_histogram'
     fig.savefig(os.path.join(savedir, savename), fmt='pdf')
 
@@ -257,7 +256,7 @@ plt.tight_layout()
 
 # Save figure
 if SAVE_GAIN_FIGURE:
-    savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\channel_fidelity_and_gain'
+    savedir = os.path.join(plot_config.save_root_dir, 'channel_fidelity_and_gain')
     savename = 'qec_gain'
     fig.savefig(os.path.join(savedir, savename), fmt='pdf')
 

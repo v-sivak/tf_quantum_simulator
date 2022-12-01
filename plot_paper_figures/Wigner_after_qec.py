@@ -21,13 +21,12 @@ def create_grid(ax, xs):
     ax.plot(-np.ones_like(xs)*np.sqrt(2*np.pi), xs, linestyle=':', color='k')
 
 
-
-wigner_dir = r'E:\data\paper_data\Wigner_tomography'
+wigner_dir = os.path.join(plot_config.data_root_dir, 'Wigner_tomography')
 rounds = np.array([0, 100, 200, 400, 800])
 round_time_us = 4.924
 contrast = 0.63
 
-SAVE_FIGURE = True
+SAVE_FIGURE = False
 
 
 # Plot 2D Wigner
@@ -112,9 +111,7 @@ axes[2,2].set_xlabel(r'${\rm Re}[\alpha]\,/\,\sqrt{\pi\,/\,2}$')
 axes[3,2].set_xlabel(r'${\rm Im}[\alpha]\,/\,\sqrt{\pi\,/\,2}$')
 
 plt.tight_layout()
-
-if SAVE_FIGURE:
-    savename = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures_working\wigner_tomo_after_qec\big'
-    fig.savefig(savename, fmt='pdf')
-
+savename = os.path.join(plot_config.save_root_dir, 
+                        r'wigner_tomo_after_qec\big.pdf')
+if SAVE_FIGURE: fig.savefig(savename)
 

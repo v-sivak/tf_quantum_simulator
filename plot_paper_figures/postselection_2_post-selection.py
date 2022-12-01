@@ -34,8 +34,8 @@ filter_function = {
         'remove_5x_errors' : lambda s0, s1 : filter_error_strings(s0, s1, 5)
         }
 
-
-pdatadir = r'E:\data\paper_data\error_postselection_dataset\pre_processed_data'
+pdatadir = os.path.join(plot_config.data_root_dir, 
+                        'error_postselection_dataset\pre_processed_data')
 all_files = os.listdir(pdatadir)
 all_rounds, all_states = [], []
 for fname in all_files:
@@ -44,7 +44,7 @@ for fname in all_files:
 all_rounds = np.array(all_rounds)
 states = '+Z,+Y'
 
-SAVE_DATA =True
+SAVE_DATA = False
 
 # initialize some dictionaries that will be populated later
 pauli_L = {label:{} for label in filter_function.keys()}
@@ -150,7 +150,8 @@ plt.tight_layout()
 
 
 if SAVE_DATA:
-    savedir = r'E:\data\paper_data\error_postselection_dataset\postselected_lifetimes'
+    savedir = os.path.join(plot_config.data_root_dir, 
+                     'error_postselection_dataset\postselected_lifetimes')
 
     for label in filter_function.keys():
         for s in states.split(','):

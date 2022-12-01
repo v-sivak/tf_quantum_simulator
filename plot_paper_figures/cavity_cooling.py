@@ -8,9 +8,9 @@ import plot_config
 from scipy.optimize import curve_fit
 import os
 
-datadir = r'E:\data\paper_data\cavity_cooling'
+datadir = os.path.join(plot_config.data_root_dir, 'cavity_cooling')
 
-SAVE_FIGURE = True
+SAVE_FIGURE = False
 
 colors = plt.get_cmap('tab10')
 
@@ -39,5 +39,6 @@ ax.plot(rounds, np.ones_like(rounds)*m01, linestyle='--', color='black')
 
 
 plt.tight_layout()
-savename = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\cavity_cooling\gkp_ecdc_cooling.pdf'
+savename = os.path.join(plot_config.save_root_dir, 
+                        r'cavity_cooling\gkp_ecdc_cooling.pdf')
 if SAVE_FIGURE: fig.savefig(savename)

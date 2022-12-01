@@ -7,11 +7,10 @@ import matplotlib.pyplot as plt
 import plot_config
 import os
 
-SAVE_FIGURE = True
+SAVE_FIGURE = False
 LEGEND = False
 
-datadir = r'E:\data\paper_data\pulse_waveform'
-
+datadir = os.path.join(plot_config.data_root_dir, 'pulse_waveform')
 
 filename = os.path.join(datadir, 'plus_Z.npz')
 data = np.load(filename, allow_pickle=True)
@@ -32,7 +31,8 @@ ax.plot(time*1e-3, q_pulse.imag, label='Q', color='#fb8500', linestyle=':')
 if LEGEND: ax.legend()
 plt.tight_layout()
 
-savename = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\ECD_control\gkp_plusZ_pulse.pdf'
+savename = os.path.join(plot_config.save_root_dir, 
+                        r'ECD_control\gkp_plusZ_pulse.pdf')
 if SAVE_FIGURE: fig.savefig(savename)
 
 
@@ -60,5 +60,6 @@ ax.plot3D(time, q_pulse.real, q_pulse.imag, color=colors(5))
 
 plt.tight_layout()
 
-savename = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\ECD_control\gkp_plusZ_pulse_3D.pdf'
+savename = os.path.join(plot_config.save_root_dir, 
+                        r'ECD_control\gkp_plusZ_pulse_3D.pdf')
 if SAVE_FIGURE: fig.savefig(savename)

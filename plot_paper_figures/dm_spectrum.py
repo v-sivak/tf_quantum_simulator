@@ -2,7 +2,6 @@
 """
 Created on Sat Sep 17 17:02:14 2022
 """
-
 # append parent directory to path 
 import os
 import sys
@@ -10,7 +9,6 @@ sys.path.append(os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
 
 import tensorflow as tf
 from tensorflow import complex64 as c64
-from math import pi, sqrt
 import numpy as np
 import matplotlib.pyplot as plt
 import helper_functions as hf
@@ -22,7 +20,7 @@ SAVE_WIGNER_FIGURE = False
 
 states = ['+Z', '-Z']
 rounds = np.array([0,100, 200, 400, 800])
-datadir = r'E:\data\paper_data\density_matrix_fit'
+datadir = os.path.join(plot_config.data_root_dir, 'density_matrix_fit')
 
 # Load data
 dms = {'+Z':[], '-Z':[]}
@@ -71,8 +69,9 @@ for state in ['+Z']:
 plt.tight_layout()
 
 if SAVE_SPECTRUM_FIGURE:
-    savename = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\spectrum_of_dm\spectrum'
-    fig.savefig(savename, fmt='pdf')
+    savename = os.path.join(plot_config.save_root_dir, 
+                        r'spectrum_of_dm\spectrum.pdf')
+    fig.savefig(savename)
 
 
 
@@ -118,5 +117,6 @@ axes[1].pcolormesh(x_E, y_E, np.transpose(W_E), **plot_kwargs)
 plt.tight_layout()
 
 if SAVE_WIGNER_FIGURE:
-    savename = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures_working\spectrum_of_dm\wigners'
-    fig.savefig(savename, fmt='pdf')
+    savename = os.path.join(plot_config.save_root_dir, 
+                    r'spectrum_of_dm\wigners.pdf')
+    fig.savefig(savename)

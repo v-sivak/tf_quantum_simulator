@@ -12,10 +12,9 @@ from scipy.optimize import curve_fit
 def log_linear(x, a, b):
     return np.log(a + b * x)
 
+datadir = os.path.join(plot_config.data_root_dir, 'transmon_noise_injection')
 
-datadir = r'E:\data\paper_data\transmon_noise_injection'
-
-SAVE_MAIN_FIGURE = True
+SAVE_MAIN_FIGURE = False
 SAVE_VERIFICATION_FIGURE = False
 
 
@@ -115,12 +114,10 @@ plt.tight_layout()
 
 # Save figure
 if SAVE_VERIFICATION_FIGURE:
-    savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\noise_injection'
-    savename = 'noise_verification'
-    fig.savefig(os.path.join(savedir, savename), fmt='pdf')
+    savename = os.path.join(plot_config.save_root_dir, 
+                            r'noise_injection\noise_verification.pdf')
+    fig.savefig(savename)
     
-    
-
 
 
 ### LOGICAL VS PHYSICAL RATES V1
@@ -200,11 +197,9 @@ plt.tight_layout()
 
 # Save figure
 if SAVE_MAIN_FIGURE:
-    savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\noise_injection'
-    savename = 'noise_injection_one_panel'
-    fig.savefig(os.path.join(savedir, savename), fmt='pdf')
-    
-
+    savename = os.path.join(plot_config.save_root_dir, 
+                            r'noise_injection\noise_injection_one_panel.pdf')
+    fig.savefig(savename)
 
 
 

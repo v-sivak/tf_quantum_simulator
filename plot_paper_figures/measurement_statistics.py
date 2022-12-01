@@ -9,10 +9,8 @@ import matplotlib.pyplot as plt
 from math import sqrt, pi
 from scipy.optimize import curve_fit
 
-
-data_dir = r'E:\data\paper_data\measurement_outcomes'
+data_dir = os.path.join(plot_config.data_root_dir, 'measurement_outcomes')
 SAVE_FIGURE = False
-
 
 
 ### LOAD DATA
@@ -191,10 +189,7 @@ for d in D:
 ax.set_xticks([1,1e1,1e2,1e3])
 
 plt.tight_layout()
-
-if SAVE_FIGURE:
-    savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\measurements_statistics'
-    fig.savefig(os.path.join(savedir, 'fig_stat_v2'), fmt='.pdf')
-
-
+savename = os.path.join(plot_config.save_root_dir, 
+                        r'measurements_statistics\fig_stat_v2.pdf')
+if SAVE_FIGURE: fig.savefig(savename)
 

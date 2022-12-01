@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Sep 30 09:58:40 2022
-
-@author: qulab
 """
 import os
 import sys
@@ -10,14 +8,10 @@ sys.path.append(os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
 
 import tensorflow as tf
 from tensorflow import complex64 as c64
-from math import pi, sqrt
+from math import pi
 import numpy as np
-import operators as ops
-import utils
 import matplotlib.pyplot as plt
 from plot_paper_figures import plot_config
-from utils import density_matrix
-import qutip as qt
 
 
 from scipy.special import hermite 
@@ -27,7 +21,7 @@ matmul = tf.linalg.matmul
 matvec = tf.linalg.matvec
 trace = tf.linalg.trace
 
-SAVE_FIGURE = True
+SAVE_FIGURE = False
 
 ### TOOLS FOR GKP IN FOCK BASIS
 J_max = 12
@@ -119,6 +113,6 @@ axes[1,2].set_xlabel(r'${\rm Re}[\alpha]\,/\,\sqrt{\pi\,/\,2}$')
 plt.tight_layout()
 
 
-if SAVE_FIGURE:
-    savename = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures_working\gkp_and_sbs_intro\wigners'
-    fig.savefig(savename, fmt='pdf')
+savename = os.path.join(plot_config.save_root_dir, 
+                        r'gkp_and_sbs_intro\wigners.pdf')
+if SAVE_FIGURE: fig.savefig(savename)

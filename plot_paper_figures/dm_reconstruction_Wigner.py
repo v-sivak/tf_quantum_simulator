@@ -17,7 +17,7 @@ import operators as ops
 # !pip install git+https://github.com/google-research/tensorflow_constrained_optimization
 import tensorflow_constrained_optimization as tfco
 import matplotlib.pyplot as plt
-from gkp_exp_analysis import plot_config
+from plot_paper_figures import plot_config
 from scipy.optimize import curve_fit
 import helper_functions as hf
 from utils import density_matrix
@@ -39,10 +39,10 @@ whose coefficients are optimized.
 SAVE_FIGURE = False
 SAVE_DENSITY_MATRIX = False
 fname = r'+Z_n=400.npz'
-datadir = r'E:\data\paper_data\Wigner_tomography'
+datadir = os.path.join(plot_config.data_root_dir, 'Wigner_tomography')
 dataname = os.path.join(datadir, fname)
-figsavedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\state_reconstruction'
-dmsavedir = r'E:\data\gkp_sims\PPO\ECD\EXP_Vlad\density_matrix'
+figsavedir = os.path.join(plot_config.save_root_dir, 'state_reconstruction')
+dmsavedir = os.path.join(plot_config.data_root_dir, 'density_matrix_fit')
 N = 32 # dimension of the reconstructed density matrix
 
 

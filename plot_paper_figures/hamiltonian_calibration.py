@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Apr 19 09:14:02 2022
-
-@author: qulab
 """
 import os
 import plot_config
@@ -13,8 +11,7 @@ from scipy.optimize import curve_fit
 import matplotlib as mpl
 import matplotlib.gridspec as gridspec
 
-datadir = r'E:\data\paper_data\hamiltonian_calibration'
-
+datadir = os.path.join(plot_config.data_root_dir, 'hamiltonian_calibration')
 
 SAVE_FIGURE = False
 
@@ -28,7 +25,6 @@ freq, data = data['freq'], data['data']
 fig = plt.figure(1, figsize=(7,2.5), dpi=600)
 gridspec.GridSpec(3,2)
 
-
 ax = plt.subplot2grid((2,3), (0,0), colspan=1, rowspan=2)
 
 ax.set_xlabel(r'Detuning (kHz)')
@@ -38,8 +34,6 @@ color = plt.get_cmap('Paired')(0)
 ax.plot(freq, data, linestyle='-', color=color, zorder=10)
 color = plt.get_cmap('Paired')(1)
 ax.plot(freq, data, marker='.', linestyle='none', color=color, zorder=10, label=r'$\alpha=0$')
-
-
 
 
 ### 1st PANEL: Number-resolved spectroscopy with oscillator in coherent state
@@ -97,8 +91,6 @@ for s in qubit_states:
                 linestyle='-', marker=None, color=color)
 
 
-
-
 ### 3rd PANEL: Out-and-back average rotation frequency
 ax = plt.subplot2grid((2,3), (0,2), colspan=1, rowspan=1)
 
@@ -117,8 +109,6 @@ ax.plot(nbar, avg_freq*1e-3, marker='.',linestyle='none', color=plt.get_cmap('Pa
 ax.plot(nbar[:fit_pts], avg_freq_fit_func(nbar[:fit_pts], *popt)*1e-3,
         # label=r'K=%.0f Hz, $\Delta$= %.1f kHz' %(Kerr,Delta*1e-3))
         label=' ', color='black')
-
-
 
 
 
@@ -142,16 +132,12 @@ ax.plot(nbar[:fit_pts], diff_freq_fit_func(nbar[:fit_pts], *popt)*1e-3,
 
 ax.scatter([0], [46.6], marker='*')
 
-
-
-
-
 plt.tight_layout()
 
-if SAVE_FIGURE:
-    savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\hamiltonian_parameters'
-    savename = 'hamiltonian'
-    fig.savefig(os.path.join(savedir, savename), fmt='pdf')
+
+savename = os.path.join(plot_config.save_root_dir, 
+                        r'hamiltonian_parameters\hamiltonian.pdf')
+if SAVE_FIGURE: fig.savefig(savename)
     
     
     

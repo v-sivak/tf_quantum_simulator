@@ -19,10 +19,9 @@ def survival_prob(n, p):
 def log_survival_prob(n, log_p, n0):
     return (n-n0) * log_p
 
-
 SAVE_FIGURE = False
 
-datadir = r'E:\data\paper_data\error_postselection_dataset\postselected_lifetimes'
+datadir = os.path.join(plot_config.data_root_dir, 'error_postselection_dataset\postselected_lifetimes')
 
 messy_dict = {}
 for f in os.listdir(datadir):
@@ -44,7 +43,6 @@ labels = ['include_leakage', 'remove_5x_errors', 'remove_4x_errors',
 
 # Define plot options and make a plot
 colors = {'+Z': plt.get_cmap('Blues'), '+Y': plt.get_cmap('Oranges')}
-
 
 
 # ----------------------------------------------------------------------------
@@ -86,7 +84,8 @@ for s in ['+Y', '+Z']:
 plt.tight_layout()
 
 if SAVE_FIGURE:
-    savename = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\fig4_characterization\postselection'
+    savename = os.path.join(plot_config.save_root_dir, 
+                            r'fig4_characterization\postselection')
     fig.savefig(savename, fmt='pdf')
     
 # ----------------------------------------------------------------------------
@@ -210,10 +209,9 @@ ax.plot(np.arange(1,5+1), np.ones(5), linestyle='--', color='k')
 plt.tight_layout()
 
 if SAVE_FIGURE:
-    savename = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\postselection_of_errors\plot'
-    fig.savefig(savename, fmt='.pdf')
-
-
+    savename = os.path.join(plot_config.save_root_dir, 
+                            r'postselection_of_errors\plot')
+    fig.savefig(savename, fmt='pdf')
 
 
 

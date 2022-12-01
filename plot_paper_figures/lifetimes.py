@@ -9,11 +9,12 @@ import matplotlib.pyplot as plt
 from math import sqrt, pi
 
 ### LOAD DATA
+datadir = os.path.join(plot_config.data_root_dir, 'lifetimes')
+times_us = np.load(os.path.join(datadir, 'times_us.npz'))
+state = np.load(os.path.join(datadir, 'state.npz'))
+fit_params = np.load(os.path.join(datadir, 'fit_params.npz'))
+fit_stdev = np.load(os.path.join(datadir, 'fit_stdev.npz'))
 round_time_us = 4.924
-times_us = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\lifetimes\times_us_4.npz')
-state = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\lifetimes\state_4.npz')
-fit_params = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\lifetimes\fit_params_4.npz')
-fit_stdev = np.load(r'Z:\shared\tmp\for Vlad\from_vlad\lifetimes\fit_stdev_4.npz')
 
 USE_LEGEND = False
 SAVE_FIGURE = False
@@ -168,7 +169,7 @@ plt.tight_layout()
 
 # Save figure
 if SAVE_FIGURE:
-    savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\fig3_lifetimes'
+    savedir = os.path.join(plot_config.save_root_dir, 'fig3_lifetimes')
     savename = 'Lifetimes'
     fig.savefig(os.path.join(savedir, savename), fmt='pdf')
 
@@ -210,7 +211,7 @@ ax.set_ylim(0,2)
 plt.tight_layout()
 
 if SAVE_FIGURE:
-    savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\fig3_lifetimes'
+    savedir = os.path.join(plot_config.save_root_dir, 'fig3_lifetimes')
     savename = 'bar_plot'
     fig.savefig(os.path.join(savedir, savename), fmt='pdf')
 
@@ -240,106 +241,30 @@ plt.tight_layout()
 
 # Save figure
 if SAVE_GAIN_FIGURE:
-    savedir = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\channel_fidelity_and_gain'
+    savedir = os.path.join(plot_config.save_root_dir, 'channel_fidelity_and_gain')
     savename = 'channel_fidelity_vs_time'
     fig.savefig(os.path.join(savedir, savename), fmt='pdf')
     
+
     
     
     
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-# from scipy.optimize import curve_fit
-# import numpy as np
-# import matplotlib.pyplot as plt
 
+def scale(a):
+    return (a-np.mean(a[-5:]))/(a-np.mean(a[-5:]))[0]
 
-# def exp1(t, T1, a0, a1):
-#     return a0 + a1*np.exp(-t/T1)
+fig, ax = plt.subplots(1,1, dpi=600)
+ax.set_yscale('log')
+ax.set_ylim(1e-2,1.2)
 
-# def exp2(t, T1, T2, a0, a1, a2):
-#     return a0 + a1*np.exp(-t/T1) + a2*np.exp(-t/T2)
-
-
-# def scale(a):
-#     return (a-np.mean(a[-5:]))/(a-np.mean(a[-5:]))[0]
-
-
-# fig, ax = plt.subplots(1,1, dpi=600)
-# ax.set_yscale('log')
-# ax.set_ylim(1e-2,1.2)
-
-# line = '--'
-
-# # ax.plot(times_us['fock_T1'], state['fock_T1'], linestyle='none', marker='.')
-
-# ax.plot(times_us['fock_T1'], scale(state['fock_T1']), linestyle=line, marker='.')
-
-# # ax.plot(times_us['fock_T2'], (state['fock_T2']/state['fock_T2'][0]), 
-# #         linestyle=line, marker='.')
-
-# ax.plot(times_us['transmon_T1'], scale(state['transmon_T1']), linestyle=line, marker='.')
-
-# ax.plot(times_us['transmon_T2E'], scale(state['transmon_T2E']), linestyle=line, marker='.')
-
-# # ax.plot(times_us['transmon_T2E'], (state['transmon_T2E']-np.mean(state['transmon_T2E'][-5:]))/state['transmon_T2E'][0], 
-# #         linestyle=line, marker='.')
-
-# # popt, pcov = curve_fit(exp1, times_us['fock_T1'], state['fock_T1'], p0=(500, 0, 1))
-# # ax.plot(times_us['fock_T1'], exp1(times_us['fock_T1'], *popt))
-
-# # popt, pcov = curve_fit(exp2, times_us['fock_T1'], state['fock_T1'], p0=(500, 1000, 0, 1, 0))
-# # ax.plot(times_us['fock_T1'], exp2(times_us['fock_T1'], *popt))
-
-
-# ax.plot(times_us['gkp_X'], scale(state['gkp_X']), linestyle=line, marker='.')
-# ax.plot(times_us['gkp_Y'], scale(state['gkp_Y']), linestyle=line, marker='.')
-# ax.plot(times_us['gkp_Z'], scale(state['gkp_Z']), linestyle=line, marker='.')
-
-# ax.plot(times_us['fock_T2'], scale(state['fock_T2']), linestyle=line, marker='.')
-
-
-
-
-
-# # times = times_us['transmon_T2E']
-# # T = times_us['transmon_T2E'][1]-times_us['transmon_T2E'][0] # in [us]
-# # D = state['transmon_T2E']
-
-# # D = np.exp(-times/50)*np.cos(times/30)
-
-# # s_re = np.linspace(0, 1/10, 201)
-# # s_im = np.linspace(-1/10, 1/10, 51)
-# # xs, ys = np.meshgrid(s_re, s_im, indexing='xy')
-# # s_grid = xs + 1j*ys
-
-# # z_grid = np.exp(s_grid*T)
-
-
-# # def z_transform(z_grid, data):
-# #     # z_grid is 2-dimensional, 
-# #     # data   is 1-dimensional
-# #     # output is 2-dimensional
-# #     N = len(data)
-# #     z_grid = np.stack([z_grid]*N)
-# #     n = np.arange(N).reshape([N,1,1])
-# #     data = data.reshape([N,1,1])
-# #     return np.sum(data * z_grid ** (-n), axis=0)
-
-# # Z = z_transform(z_grid, D)
-
-# # fig, ax = plt.subplots(1,1)
-# # ax.pcolormesh(s_re, s_im, np.abs(Z), cmap='Reds')
-
+line = '--'
+ax.plot(times_us['fock_T1'], scale(state['fock_T1']), linestyle=line, marker='.')
+ax.plot(times_us['transmon_T1'], scale(state['transmon_T1']), linestyle=line, marker='.')
+ax.plot(times_us['transmon_T2E'], scale(state['transmon_T2E']), linestyle=line, marker='.')
+ax.plot(times_us['gkp_X'], scale(state['gkp_X']), linestyle=line, marker='.')
+ax.plot(times_us['gkp_Y'], scale(state['gkp_Y']), linestyle=line, marker='.')
+ax.plot(times_us['gkp_Z'], scale(state['gkp_Z']), linestyle=line, marker='.')
+ax.plot(times_us['fock_T2'], scale(state['fock_T2']), linestyle=line, marker='.')
 

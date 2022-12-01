@@ -8,7 +8,7 @@ import plot_config
 from scipy.optimize import curve_fit
 import os
 
-datadir = r'E:\data\paper_data\CD_calibration'
+datadir = os.path.join(plot_config.data_root_dir, 'CD_calibration')
 
 SAVE_FIGURE = False
 LEGEND = False
@@ -106,9 +106,9 @@ if LEGEND: ax.legend(title=r'$\beta$', markerscale=1)
 plt.tight_layout()
 
 
-savename = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\CD_amp_calibration\CD_cal.pdf'
+savename = os.path.join(plot_config.save_root_dir, 
+                        r'CD_calibration\CD_cal.pdf')
 if SAVE_FIGURE: fig.savefig(savename)
-
 
 
 ### FIGURE 2: PHASE CALIBRATION
@@ -162,5 +162,6 @@ ax.plot(betas, phase_cos_fit(betas, *popt_phase), color='k')
 
 plt.tight_layout()
 
-savename = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\CD_phase_calibration\CD_cal_3.pdf'
+savename = os.path.join(plot_config.save_root_dir, 
+                        r'CD_calibration\CD_cal_2.pdf')
 if SAVE_FIGURE: fig.savefig(savename)

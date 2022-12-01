@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from math import sqrt, pi
 from scipy.optimize import curve_fit
 
-datadir = r'E:\data\paper_data\measurement_outcomes'
+datadir = os.path.join(plot_config.data_root_dir, 'measurement_outcomes')
 
 ### LOAD DATA
 data = dict(np.load(os.path.join(datadir, 'sample_for_analysis.npz')))
@@ -51,9 +51,9 @@ p = ax.pcolormesh(r[:-1,:-1], cmap='seismic', vmin=-0.1, vmax=0.1, rasterized=Tr
 
 plt.tight_layout()
  
-if SAVE_FIGURE:
-    savename = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\measurements_statistics\correlation'
-    fig.savefig(savename, fmt='pdf')
+savename = os.path.join(plot_config.save_root_dir, 
+                        r'measurements_statistics\correlation.pdf')
+if SAVE_FIGURE: fig.savefig(savename)
 
 
 
@@ -103,10 +103,9 @@ print('Correlation length %.1f cycles' %popt[-1])
 
 
 plt.tight_layout()
-
-if SAVE_FIGURE:
-    savename = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\measurements_statistics\corr_avg'
-    fig.savefig(savename, fmt='pdf')
+savename = os.path.join(plot_config.save_root_dir, 
+                        r'measurements_statistics\corr_avg.pdf')
+if SAVE_FIGURE: fig.savefig(savename)
 
 
 Pi = (data['g']*np.roll(data['g'],1,axis=1)).mean(axis=0)

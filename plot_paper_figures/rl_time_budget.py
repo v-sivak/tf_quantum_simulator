@@ -5,8 +5,9 @@ Created on Sun Mar 27 14:31:33 2022
 import numpy as np
 import matplotlib.pyplot as plt
 import plot_config
+import os
 
-SAVE_FIGURE = True
+SAVE_FIGURE = False
 
 fig, ax = plt.subplots(1,1, dpi=600, figsize=(3.1, 3.13))
 ax.grid()
@@ -42,5 +43,7 @@ print('Total time per epoch: %.2f' %total_time)
 
 plt.tight_layout()
 
-savename = r'E:\VladGoogleDrive\Qulab\GKP\paper_qec\figures\reinforcement_learning\time_budget.pdf'
+
+savename = os.path.join(plot_config.save_root_dir, 
+                        r'reinforcement_learning\time_budget.pdf')
 if SAVE_FIGURE: fig.savefig(savename)
